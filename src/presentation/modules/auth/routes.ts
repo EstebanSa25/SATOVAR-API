@@ -22,6 +22,8 @@ export class AuthRoutes {
         router.get('/validate-email/:token', controller.validateEmail);
         router.get('/', controller.FindAll);
         router.post('/login', controller.login);
+        router.get('/:id', controller.FindById);
+        router.put('/:id', controller.UpdateById);
         //#endregion
         return router;
     }

@@ -1,4 +1,3 @@
-import { Console } from 'console';
 import { JwtAdapter, bcryptAdapter, envs } from '../../config';
 import { prisma } from '../../data/prisma';
 import { CustomError, CustomErrorImpl, Rol } from '../../domain';
@@ -6,13 +5,32 @@ import { LoginUserDTO, RegisterUserDto } from '../../domain/dtos';
 import { validateEmail } from '../../helpers';
 import { EmailService } from './email.service';
 import { DeleteUserDto } from '../../domain/dtos/delete-user.dto';
+import { UserEntity } from '../../domain/entities/user.entity';
+import { UpdateUserDto } from '../../domain/dtos/update-user.dto';
 
 export class AuthService {
     constructor(private readonly emailService: EmailService) {}
+    async getUserById(id: number) {
+        try {
+            const user = await prisma.t_USUARIO.findUnique({
+                where: { CI_ID_USUARIO: id },
+            });
+            if (!user) throw CustomError.notFound('User not found');
+            const { CV_CLAVE, ...userWithoutCLAVE } = user;
+            return { userWithoutCLAVE };
+        } catch (error) {
+            console.log(error);
+            throw CustomError.internalServer('Error getting user');
+        }
+    }
     async getAllUsers() {
         try {
             const users = await prisma.t_USUARIO.findMany();
-            return users;
+            // quitar todas las claves
+            const usersWithoutCLAVE = users.map(
+                ({ CV_CLAVE, ...rest }) => rest
+            );
+            return usersWithoutCLAVE;
         } catch (error) {
             console.log(error);
             return CustomError.internalServer('Error getting users');
@@ -22,7 +40,7 @@ export class AuthService {
         const exist = await prisma.t_USUARIO.findFirst({
             where: { CV_CORREO: registerUserDto.Correo },
         });
-        if (exist) throw 'User already exists';
+        if (exist) CustomError.badRequest('User already exists');
         const clave = bcryptAdapter.hash(registerUserDto.Clave);
         try {
             const user = await prisma.t_USUARIO.create({
@@ -79,21 +97,33 @@ export class AuthService {
             id: user.CI_ID_USUARIO,
         });
         if (!token) throw CustomError.internalServer('Error creating token');
+
         return {
             token,
-            userId: user.CI_ID_USUARIO,
-            userName: user.CV_NOMBRE,
-            userEmail: user.CV_CORREO,
-            userRol: user.CI_ID_ROL,
-            userApellido1: user.CV_APELLIDO1,
-            userApellido2: user.CV_APELLIDO2,
-            userCedula: user.CV_CEDULA,
-            userDireccion: user.CV_DIRECCION,
-            userTelefono: user.CV_TELEFONO,
-            userEstado: user.CB_ESTADO,
+            user: UserEntity.fromObject(user),
         };
     }
-
+    async updateUser(updateUserDto: UpdateUserDto) {
+        const user = await prisma.t_USUARIO.findUnique({
+            where: { CI_ID_USUARIO: updateUserDto.Id },
+        });
+        if (!user) throw CustomError.notFound('User not found');
+        const userUpdated = await prisma.t_USUARIO.update({
+            where: { CI_ID_USUARIO: updateUserDto.Id },
+            data: {
+                CV_NOMBRE: updateUserDto.Nombre,
+                CV_APELLIDO1: updateUserDto.Apellido1,
+                CV_APELLIDO2: updateUserDto.Apellido2,
+                CV_CEDULA: updateUserDto.Cedula,
+                CV_CORREO: updateUserDto.Correo,
+                CV_DIRECCION: updateUserDto.Direccion,
+                CV_TELEFONO: updateUserDto.Telefono,
+                CI_ID_ROL: Rol.Cliente,
+            },
+        });
+        const { CV_CLAVE, ...userWithoutCLAVE } = userUpdated;
+        return { userWithoutCLAVE };
+    }
     public sendEmailValidationLink = async (email: string) => {
         const token = await JwtAdapter.generateToken({ email });
         if (!token) throw CustomError.internalServer('Error getting token');

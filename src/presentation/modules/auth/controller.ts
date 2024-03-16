@@ -4,6 +4,7 @@ import {
     DeleteUserDto,
     LoginUserDTO,
     RegisterUserDto,
+    UpdateUserDto,
 } from '../../../domain/dtos';
 import { AuthService } from '../../services/auth.service';
 import { CustomErrorImpl } from '../../../domain/errors/custom.error.impl';
@@ -40,10 +41,23 @@ export class AuthController implements Repository {
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
     FindById = (req: Request, res: Response) => {
-        throw new Error('Method not implemented.');
+        const { id } = req.params;
+        this.authService
+            .getUserById(+id)
+            .then((user) => res.json(user))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
     };
     UpdateById = (req: Request, res: Response) => {
-        throw new Error('Method not implemented.');
+        const { id } = req.params;
+        const [error, updateDTO] = UpdateUserDto.create({
+            ...req.body,
+            Id: +id,
+        });
+        if (error) return res.status(400).json({ error });
+        this.authService
+            .updateUser(updateDTO!)
+            .then((user) => res.json(user))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
     };
     validateEmail = (req: Request, res: Response) => {
         const { token } = req.params;
