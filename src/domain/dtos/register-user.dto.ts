@@ -21,18 +21,18 @@ export class RegisterUserDto {
             Clave,
         } = object;
 
-        if (!Nombre) return ['Nombre is required'];
-        if (!Apellido1) return ['Apellido1 is required'];
-        if (!Apellido2) return ['Apellido2 is required'];
-        if (!Cedula) return ['Cedula is required'];
-        if (isNaN(Cedula)) return ['Cedula must be a number'];
+        if (!Nombre) return ['El nombre es requerido'];
+        if (!Apellido1) return ['El primer apellido es requerido'];
+        if (!Apellido2) return ['El segundo apellido es requerido'];
+        if (!Cedula) return ['La cedula es requerida'];
+        if (isNaN(Cedula)) return ['La cedula debe ser un numero'];
         if (Cedula.toString().length < 9)
-            return ['Cedula must be 9 digits long'];
+            return ['La cedula debe tener al menos 9 digitos'];
 
-        if (!Correo) return ['Correo is required'];
-        if (!Direccion) return ['Direccion is required'];
-        if (!Telefono) return ['Telefono is required'];
-        if (!Clave) return ['Clave is required'];
+        if (!Correo) return ['Correo electronico es requerido'];
+        if (!Direccion) return ['La direccion es requerida'];
+        if (!Telefono) return ['El numero de telefono es requerido'];
+        if (!Clave) return ['La clave es requerida'];
 
         return [
             undefined,

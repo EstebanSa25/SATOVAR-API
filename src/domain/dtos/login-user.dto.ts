@@ -5,8 +5,8 @@ export class LoginUserDTO {
     ) {}
     static create(object: { [key: string]: any }): [string?, LoginUserDTO?] {
         const { correo, clave } = object;
-        if (!correo) return ['Correo is required'];
-        if (!clave) return ['Clave is required'];
+        if (!correo) return ['El correo es requerido'];
+        if (!clave) return ['La clave es requerida'];
         return [undefined, new LoginUserDTO(correo, clave)];
     }
 }

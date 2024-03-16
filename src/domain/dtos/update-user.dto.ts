@@ -23,8 +23,8 @@ export class UpdateUserDto {
             Clave,
         } = object;
 
-        if (!Id) return ['Id is required'];
-        if (isNaN(Id)) return ['Id must be a number'];
+        if (!Id) return ['El id es requerido'];
+        if (isNaN(Id)) return ['El id debe ser un numero'];
 
         return [
             undefined,

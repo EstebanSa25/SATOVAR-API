@@ -1,8 +1,8 @@
 export class DeleteUserDto {
     private constructor(public readonly id: number) {}
     static create(id: number): [string?, DeleteUserDto?] {
-        if (!id) return ['id is required'];
-        if (isNaN(id)) return ['id must be a number'];
+        if (!id) return ['El id es requerido'];
+        if (isNaN(id)) return ['El id debe ser un numero'];
         return [undefined, new DeleteUserDto(id)];
     }
 }
