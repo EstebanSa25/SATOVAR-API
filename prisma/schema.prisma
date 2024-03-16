@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model T_CAMISA {
+  CI_ID_CAMISA       Int                  @id(map: "PK__T_CAMISA__658723BBAB061FC1") @default(autoincrement())
+  CI_PECHO           Int
+  CI_CINTURA         Int
+  CI_CADERA          Int
+  CI_ESPALDA         Int
+  CI_HOMBRO          Int
+  CI_CUELLO          Int
+  CI_L_MANGA         Int
+  CI_L_TOTAL         Int
+  CI_BRAZO           Int
+  CI_PUNO            Int
+  CV_DETALLES        String               @db.NVarChar(Max)
+  T_USUARIO_X_MEDIDA T_USUARIO_X_MEDIDA[]
+}
+
+model T_CATALOGO {
+  CI_ID_CATALOGO Int          @id(map: "PK__T_CATALO__924F56F8160F61AF") @default(autoincrement())
+  CV_DESCRIPCION String       @db.NVarChar(70)
+  CB_ESTADO      Boolean
+  T_PRODUCTO     T_PRODUCTO[]
+}
+
+model T_CATEGORIA {
+  CI_ID_CATEGORIA Int          @id(map: "PK__T_CATEGO__0F0D10D42FE88E53") @default(autoincrement())
+  CV_DESCRIPCION  String       @db.NVarChar(70)
+  CB_ESTADO       Boolean
+  T_PRODUCTO      T_PRODUCTO[]
+}
+
+model T_CHALECO {
+  CI_ID_CHALECO      Int                  @id(map: "PK__T_CHALEC__93D395277E2A216B") @default(autoincrement())
+  CI_PECHO           Int
+  CI_CINTURA         Int
+  CI_CADERA          Int
+  CI_L_TOTAL         Int
+  CV_DETALLES        String               @db.NVarChar(Max)
+  T_USUARIO_X_MEDIDA T_USUARIO_X_MEDIDA[]
+}
+
+model T_COMPRA {
+  CI_ID_COMPRA     Int                @id(map: "PK__T_COMPRA__7F520FBBA5F0422B") @default(autoincrement())
+  CI_ID_USUARIO    Int
+  CF_FECHA_PAGO    DateTime           @default(now(), map: "DF__T_COMPRA__CF_FEC__628FA481") @db.DateTime
+  CD_SUBTOTAL      Decimal            @db.Decimal(10, 2)
+  CD_IMPUESTOS     Decimal            @db.Decimal(10, 2)
+  CD_DESCUENTOS    Decimal            @db.Decimal(10, 2)
+  CD_TOTAL         Decimal            @db.Decimal(10, 2)
+  T_USUARIO        T_USUARIO          @relation(fields: [CI_ID_USUARIO], references: [CI_ID_USUARIO], onUpdate: NoAction, map: "FK_COMPRA_USUARIO")
+  T_DETALLE_COMPRA T_DETALLE_COMPRA[]
+}
+
+model T_DETALLE_COMPRA {
+  CI_ID_DETALLE_COMPRA Int        @id(map: "PK__T_DETALL__0117900D2185568E") @default(autoincrement())
+  CI_ID_COMPRA         Int
+  CI_ID_PRODUCTO       Int
+  CI_CANTIDAD          Int
+  CF_FECHA_ENTREGA     DateTime   @db.Date
+  CD_PRECIO            Decimal    @db.Decimal(10, 2)
+  T_COMPRA             T_COMPRA   @relation(fields: [CI_ID_COMPRA], references: [CI_ID_COMPRA], onUpdate: NoAction, map: "FK_DETALLE_COMPRA_COMPRA")
+  T_PRODUCTO           T_PRODUCTO @relation(fields: [CI_ID_PRODUCTO], references: [CI_ID_PRODUCTO], onUpdate: NoAction, map: "FK_DETALLE_COMPRA_PRODUCTO")
+}
+
+model T_ESTILO {
+  CI_ID_ESTILO        Int                   @id(map: "PK__T_ESTILO__265385AB09B42A31") @default(autoincrement())
+  CV_DESCRIPCION      String                @db.NVarChar(50)
+  CB_ESTADO           Boolean
+  T_ESTILO_X_PRODUCTO T_ESTILO_X_PRODUCTO[]
+}
+
+model T_ESTILO_X_PRODUCTO {
+  CI_ID_ESTILO_X_PRODUCTO Int        @id(map: "PK__T_ESTILO__16FFE6CC29B6E58D") @default(autoincrement())
+  CI_ID_ESTILO            Int
+  CI_ID_PRODUCTO          Int
+  T_ESTILO                T_ESTILO   @relation(fields: [CI_ID_ESTILO], references: [CI_ID_ESTILO], onUpdate: NoAction, map: "FK_ESTILO_X_PRODUCTO_ESTILO")
+  T_PRODUCTO              T_PRODUCTO @relation(fields: [CI_ID_PRODUCTO], references: [CI_ID_PRODUCTO], onUpdate: NoAction, map: "FK_ESTILO_X_PRODUCTO_PRODUCTO")
+}
+
+model T_PANTALON {
+  CI_ID_PANTALON     Int                  @id(map: "PK__T_PANTAL__ED1FFB2BB4436643") @default(autoincrement())
+  CI_CINTURA         Int
+  CI_CADERA          Int
+  CI_TIRO            Int
+  CI_RODILLA         Int
+  CI_RUEDO           Int
+  CI_LARGO           Int
+  CV_DETALLES        String               @db.NVarChar(Max)
+  T_USUARIO_X_MEDIDA T_USUARIO_X_MEDIDA[]
+}
+
+model T_PRODUCTO {
+  CI_ID_PRODUCTO      Int                   @id(map: "PK__T_PRODUC__ED80DC287D24C81B") @default(autoincrement())
+  CV_NOMBRE           String                @db.NVarChar(100)
+  CV_FOTO             String                @db.NVarChar(Max)
+  CI_ID_TELA          Int
+  CD_PRECIO           Decimal               @db.Decimal(10, 2)
+  CI_ID_CATEGORIA     Int
+  CI_ID_CATALOGO      Int
+  CB_ESTADO           Boolean
+  T_DETALLE_COMPRA    T_DETALLE_COMPRA[]
+  T_ESTILO_X_PRODUCTO T_ESTILO_X_PRODUCTO[]
+  T_CATALOGO          T_CATALOGO            @relation(fields: [CI_ID_CATALOGO], references: [CI_ID_CATALOGO], onUpdate: NoAction, map: "FK_PRODUCTO_CATALOGO")
+  T_CATEGORIA         T_CATEGORIA           @relation(fields: [CI_ID_CATEGORIA], references: [CI_ID_CATEGORIA], onUpdate: NoAction, map: "FK_PRODUCTO_CATEGORIA")
+  T_TELA              T_TELA                @relation(fields: [CI_ID_TELA], references: [CI_ID_TELA], onUpdate: NoAction, map: "FK_PRODUCTO_TELA")
+  T_PRODUCTO_X_TALLA  T_PRODUCTO_X_TALLA[]
+}
+
+model T_PRODUCTO_X_TALLA {
+  CI_ID_PROD_X_TALLA Int        @id(map: "PK__T_PRODUC__EF0BA993FCA4E5A0") @default(autoincrement())
+  CI_ID_TALLA        Int
+  CI_ID_PRODUCTO     Int
+  CI_CANTIDAD        Int
+  T_PRODUCTO         T_PRODUCTO @relation(fields: [CI_ID_PRODUCTO], references: [CI_ID_PRODUCTO], onUpdate: NoAction, map: "FK_PROD_X_TALLA_PRODUCTO")
+  T_TALLA            T_TALLA    @relation(fields: [CI_ID_TALLA], references: [CI_ID_TALLA], onUpdate: NoAction, map: "FK_PROD_X_TALLA_TALLA")
+}
+
+model T_ROL {
+  CI_ID_ROL      Int         @id(map: "PK__T_ROL__F64265C88CE2F772") @default(autoincrement())
+  CV_DESCRIPCION String?     @db.NVarChar(50)
+  CB_ESTADO      Boolean?
+  T_USUARIO      T_USUARIO[]
+}
+
+model T_SACO {
+  CI_ID_SACO         Int                  @id(map: "PK__T_SACO__10D66792AF35D361") @default(autoincrement())
+  CI_PECHO           Int
+  CI_CINTURA         Int
+  CI_CADERA          Int
+  CI_ESPALDA         Int
+  CI_HOMBRO          Int
+  CI_L_MANGA         Int
+  CI_L_TOTAL         Int
+  CI_BRAZO           Int
+  CI_PUNO            Int
+  CV_DETALLES        String               @db.NVarChar(Max)
+  T_USUARIO_X_MEDIDA T_USUARIO_X_MEDIDA[]
+}
+
+model T_TALLA {
+  CI_ID_TALLA        Int                  @id(map: "PK__T_TALLA__8B3370FA5ABE6F19") @default(autoincrement())
+  CV_TALLA           String               @db.NVarChar(10)
+  T_PRODUCTO_X_TALLA T_PRODUCTO_X_TALLA[]
+}
+
+model T_TELA {
+  CI_ID_TELA Int          @id(map: "PK__T_TELA__D502DECDC977BFFB") @default(autoincrement())
+  CV_NOMBRE  String       @db.NVarChar(100)
+  CV_FOTO    String       @db.NVarChar(Max)
+  CD_PRECIO  Decimal      @db.Decimal(10, 2)
+  CB_ESTADO  Boolean
+  T_PRODUCTO T_PRODUCTO[]
+}
+
+model T_USUARIO {
+  CI_ID_USUARIO      Int                  @id(map: "PK__T_USUARI__08FD7E8CC9BC2C5E") @default(autoincrement())
+  CV_NOMBRE          String               @db.NVarChar(100)
+  CV_APELLIDO1       String               @db.NVarChar(100)
+  CV_APELLIDO2       String               @db.NVarChar(100)
+  CV_CEDULA          String               @unique(map: "UQ__T_USUARI__C0EF9FF97E2DBEE3") @db.NVarChar(50)
+  CV_CORREO          String               @unique(map: "UQ__T_USUARI__F61C67A31FD8BB9C") @db.NVarChar(100)
+  CV_DIRECCION       String               @db.NVarChar(Max)
+  CV_TELEFONO        String               @unique(map: "UQ__T_USUARI__41BD9EBC8FD1CF62") @db.NVarChar(20)
+  CV_CLAVE           String               @db.NVarChar(Max)
+  CI_ID_ROL          Int
+  CB_ESTADO          Boolean
+  T_COMPRA           T_COMPRA[]
+  T_ROL              T_ROL                @relation(fields: [CI_ID_ROL], references: [CI_ID_ROL], onUpdate: NoAction, map: "FK_USUARIO_ROL")
+  T_USUARIO_X_MEDIDA T_USUARIO_X_MEDIDA[]
+}
+
+model T_USUARIO_X_MEDIDA {
+  CI_ID_USUARIO_X_MEDIDA Int         @id(map: "PK__T_USUARI__B7E05523CE5B3F07") @default(autoincrement())
+  CI_ID_USUARIO          Int
+  CV_MEDIDAS_DE          String?     @db.NVarChar(100)
+  CI_ID_SACO             Int?
+  CI_ID_PANTALON         Int?
+  CI_ID_CAMISA           Int?
+  CI_ID_CHALECO          Int?
+  CB_ESTADO              Boolean
+  T_CAMISA               T_CAMISA?   @relation(fields: [CI_ID_CAMISA], references: [CI_ID_CAMISA], onDelete: NoAction, onUpdate: NoAction, map: "FK_USUARIO_X_MEDIDA_CAMISA")
+  T_CHALECO              T_CHALECO?  @relation(fields: [CI_ID_CHALECO], references: [CI_ID_CHALECO], onDelete: NoAction, onUpdate: NoAction, map: "FK_USUARIO_X_MEDIDA_CHALECO")
+  T_PANTALON             T_PANTALON? @relation(fields: [CI_ID_PANTALON], references: [CI_ID_PANTALON], onDelete: NoAction, onUpdate: NoAction, map: "FK_USUARIO_X_MEDIDA_PANTALON")
+  T_SACO                 T_SACO?     @relation(fields: [CI_ID_SACO], references: [CI_ID_SACO], onDelete: NoAction, onUpdate: NoAction, map: "FK_USUARIO_X_MEDIDA_SACO")
+  T_USUARIO              T_USUARIO   @relation(fields: [CI_ID_USUARIO], references: [CI_ID_USUARIO], onUpdate: NoAction, map: "FK_USUARIO_X_MEDIDA_USUARIO")
+}
