@@ -64,7 +64,7 @@ export class AuthController implements Repository {
         if (!token) return res.status(400).json({ error: 'Token is required' });
         this.authService
             .validateEmail(token)
-            .then(() => res.json('Email validated'))
+            .then((response) => res.send(response))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
     login = (req: Request, res: Response) => {

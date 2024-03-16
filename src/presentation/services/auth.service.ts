@@ -2,7 +2,7 @@ import { JwtAdapter, bcryptAdapter, envs } from '../../config';
 import { prisma } from '../../data/prisma';
 import { CustomError, CustomErrorImpl, Rol } from '../../domain';
 import { LoginUserDTO, RegisterUserDto } from '../../domain/dtos';
-import { validateEmail } from '../../helpers';
+import { EmailValidationSuccess, validateEmail } from '../../helpers';
 import { EmailService } from './email.service';
 import { DeleteUserDto } from '../../domain/dtos/delete-user.dto';
 import { UserEntity } from '../../domain/entities/user.entity';
@@ -154,6 +154,6 @@ export class AuthService {
             throw CustomError.internalServer('Error validating email');
         }
 
-        return true;
+        return EmailValidationSuccess();
     };
 }
