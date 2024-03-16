@@ -3,6 +3,7 @@ import { AuthController } from './controller';
 import { AuthService } from '../../services';
 import { EmailService } from '../../services/email.service';
 import { envs } from '../../../config';
+import { check } from 'express-validator';
 
 export class AuthRoutes {
     static get routes(): Router {
@@ -17,7 +18,7 @@ export class AuthRoutes {
         );
         const service = new AuthService(emailService);
         const controller = new AuthController(service);
-        router.post('/create', controller.Create);
+        router.post('/create', [check('Correo').isEmail()], controller.Create);
         router.delete('/delete/:id', controller.DeleteById);
         router.get('/validate-email/:token', controller.validateEmail);
         router.get('/', controller.FindAll);

@@ -38,9 +38,28 @@ export class AuthService {
     }
     async createUser(registerUserDto: RegisterUserDto) {
         const exist = await prisma.t_USUARIO.findFirst({
-            where: { CV_CORREO: registerUserDto.Correo },
+            where: {
+                OR: [
+                    { CV_CORREO: registerUserDto.Correo },
+                    { CV_CEDULA: registerUserDto.Cedula },
+                    { CV_TELEFONO: registerUserDto.Telefono },
+                ],
+            },
         });
-        if (exist) CustomError.badRequest('User already exists');
+        if (exist) {
+            if (exist.CV_CORREO === registerUserDto.Correo)
+                throw CustomError.badRequest(
+                    'El correo ya se encuentra en uso'
+                );
+            if (exist.CV_CEDULA === registerUserDto.Cedula)
+                throw CustomError.badRequest(
+                    'La cédula ya se encuentra registrada en el sistema'
+                );
+            if (exist.CV_TELEFONO === registerUserDto.Telefono)
+                throw CustomError.badRequest(
+                    'El numero de teléfono ya se encuentra registrado en el sistema'
+                );
+        }
         const clave = bcryptAdapter.hash(registerUserDto.Clave);
         try {
             const user = await prisma.t_USUARIO.create({
@@ -62,8 +81,8 @@ export class AuthService {
                 user,
             };
         } catch (error) {
-            console.log(error);
-            throw CustomError.internalServer('Error creating user');
+            return error;
+            // throw CustomError.internalServer('Error creating user');
         }
     }
     async deleteUser(deleteUserDto: DeleteUserDto) {
@@ -87,16 +106,21 @@ export class AuthService {
         const user = await prisma.t_USUARIO.findUnique({
             where: { CV_CORREO: loginUserDTO.correo },
         });
-        if (!user) throw CustomError.notFound('Email not exist');
+        if (!user?.CB_ESTADO)
+            throw CustomError.unauthorized(
+                'Verifique su cuenta o contacte a un administrador'
+            );
+        if (!user) throw CustomError.notFound('Verifique sus credenciales');
         const isMatch = bcryptAdapter.compare(
             loginUserDTO.clave,
             user.CV_CLAVE
         );
-        if (!isMatch) throw CustomError.unauthorized('Invalid password');
+        if (!isMatch)
+            throw CustomError.unauthorized('Verifique sus credenciales');
         const token = await JwtAdapter.generateToken({
             id: user.CI_ID_USUARIO,
         });
-        if (!token) throw CustomError.internalServer('Error creating token');
+        if (!token) throw CustomError.internalServer('Error generando token');
 
         return {
             token,
