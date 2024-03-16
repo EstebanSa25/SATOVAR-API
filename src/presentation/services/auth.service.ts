@@ -106,11 +106,11 @@ export class AuthService {
         const user = await prisma.t_USUARIO.findUnique({
             where: { CV_CORREO: loginUserDTO.correo },
         });
+        if (!user) throw CustomError.notFound('Verifique sus credenciales');
         if (!user?.CB_ESTADO)
             throw CustomError.unauthorized(
                 'Verifique su cuenta o contacte a un administrador'
             );
-        if (!user) throw CustomError.notFound('Verifique sus credenciales');
         const isMatch = bcryptAdapter.compare(
             loginUserDTO.clave,
             user.CV_CLAVE
