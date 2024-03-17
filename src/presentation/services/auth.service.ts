@@ -101,7 +101,6 @@ export class AuthService {
             throw CustomError.internalServer('Error deleting user');
         }
     }
-
     async loginUser(loginUserDTO: LoginUserDTO) {
         const user = await prisma.t_USUARIO.findUnique({
             where: { CV_CORREO: loginUserDTO.correo },
@@ -123,8 +122,8 @@ export class AuthService {
         if (!token) throw CustomError.internalServer('Error generando token');
 
         return {
-            token,
             user: UserEntity.fromObject(user),
+            token,
         };
     }
     async updateUser(updateUserDto: UpdateUserDto) {
@@ -162,7 +161,6 @@ export class AuthService {
         if (!isSent) throw CustomError.internalServer('Error sending email');
         return true;
     };
-
     public validateEmail = async (token: string) => {
         const payload = await JwtAdapter.validateToken(token);
         if (!payload) throw CustomError.unauthorized('Invalid token');
