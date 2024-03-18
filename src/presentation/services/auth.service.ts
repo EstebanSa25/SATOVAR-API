@@ -1,12 +1,14 @@
 import { JwtAdapter, bcryptAdapter, envs } from '../../config';
 import { prisma } from '../../data/prisma';
-import { CustomError, CustomErrorImpl, Rol } from '../../domain';
-import { LoginUserDTO, RegisterUserDto } from '../../domain/dtos';
+import { CustomError, Rol } from '../../domain';
+import {
+    DeleteUserDto,
+    LoginUserDTO,
+    RegisterUserDto,
+    UpdateUserDto,
+} from '../../domain/dtos';
 import { EmailValidationSuccess, validateEmail } from '../../helpers';
 import { EmailService } from './email.service';
-import { DeleteUserDto } from '../../domain/dtos/delete-user.dto';
-import { UserEntity } from '../../domain/entities/user.entity';
-import { UpdateUserDto } from '../../domain/dtos/update-user.dto';
 
 export class AuthService {
     constructor(private readonly emailService: EmailService) {}
@@ -120,9 +122,9 @@ export class AuthService {
             id: user.CI_ID_USUARIO,
         });
         if (!token) throw CustomError.internalServer('Error generando token');
-
+        const { CV_CLAVE, ...userWithoutCLAVE } = user;
         return {
-            user: UserEntity.fromObject(user),
+            user: userWithoutCLAVE,
             token,
         };
     }
