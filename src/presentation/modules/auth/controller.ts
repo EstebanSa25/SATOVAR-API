@@ -75,4 +75,11 @@ export class AuthController implements Repository {
             .then((user) => res.json(user))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
+    RevalidateToken = (req: Request, res: Response) => {
+        const { idToken } = req.body;
+        this.authService
+            .revalidateToken(idToken)
+            .then((user) => res.json(user))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
+    };
 }

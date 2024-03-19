@@ -1,34 +1,41 @@
-import { Console } from 'console';
 import { prisma } from '../../data/prisma';
-import { CustomError, Rol, T_Shirt_Entity } from '../../domain';
-import { RegisterMeasureShirtDto } from '../../domain/dtos';
+import { CustomError, RegisterMeasureSuitJacketDto, Rol } from '../../domain';
 import _ from 'lodash';
-export class MeasureShirtService {
+export class MeasureSuitJacketService {
     constructor() {}
-    async registerMeasureShirt(
-        registerMeasureShirtDto: RegisterMeasureShirtDto
-    ) {
+    async registerMeasureSuitJacket(dto: RegisterMeasureSuitJacketDto) {
         const userExist = await prisma.t_USUARIO.findUnique({
-            where: { CI_ID_USUARIO: registerMeasureShirtDto.id },
+            where: { CI_ID_USUARIO: dto.id },
         });
+
         if (!userExist) throw CustomError.notFound('Usuario no encontrado');
         if (
             userExist.CI_ID_ROL !== Rol.Admin &&
-            userExist.CI_ID_USUARIO !== registerMeasureShirtDto.idToken
+            userExist.CI_ID_USUARIO !== dto.idToken
         )
             throw CustomError.unauthorized(
                 'No tiene permisos para realizar esta acción'
             );
         const userMeasureExist = await prisma.t_USUARIO_X_MEDIDA.findFirst({
-            where: { CI_ID_USUARIO: registerMeasureShirtDto.id },
+            where: { CI_ID_USUARIO: dto.id },
         });
 
-        const mapped = T_Shirt_Entity(registerMeasureShirtDto);
         try {
-            if (userMeasureExist?.CI_ID_CAMISA)
+            if (userMeasureExist?.CI_ID_SACO)
                 throw CustomError.badRequest('Ya tiene una medida registrada');
-            const measureCamisa = await prisma.t_CAMISA.create({
-                data: { ...mapped },
+            const measureSuitJacket = await prisma.t_SACO.create({
+                data: {
+                    CI_PECHO: dto.pecho,
+                    CI_CINTURA: dto.cintura,
+                    CI_CADERA: dto.cadera,
+                    CI_ESPALDA: dto.espalda,
+                    CI_HOMBRO: dto.hombro,
+                    CI_L_MANGA: dto.largoManga,
+                    CI_L_TOTAL: dto.largoTotal,
+                    CI_BRAZO: dto.brazo,
+                    CI_PUNO: dto.puno,
+                    CV_DETALLES: dto.detalles,
+                },
             });
             if (userMeasureExist) {
                 const user_measure = await prisma.t_USUARIO_X_MEDIDA.update({
@@ -37,7 +44,7 @@ export class MeasureShirtService {
                             userMeasureExist.CI_ID_USUARIO_X_MEDIDA,
                     },
                     data: {
-                        CI_ID_CAMISA: measureCamisa.CI_ID_CAMISA,
+                        CI_ID_SACO: measureSuitJacket.CI_ID_SACO,
                     },
                 });
                 return {
@@ -47,14 +54,14 @@ export class MeasureShirtService {
             }
             const user_measure = await prisma.t_USUARIO_X_MEDIDA.create({
                 data: {
-                    CI_ID_USUARIO: registerMeasureShirtDto.id,
-                    CI_ID_CAMISA: measureCamisa.CI_ID_CAMISA,
-                    CV_MEDIDAS_DE: 'Camisa',
+                    CI_ID_USUARIO: dto.id,
+                    CI_ID_SACO: measureSuitJacket.CI_ID_SACO,
+                    CV_MEDIDAS_DE: 'Saco',
                     CB_ESTADO: true,
                 },
             });
             return {
-                medida: measureCamisa,
+                medida: measureSuitJacket,
                 estado: true,
             };
         } catch (error) {
@@ -78,7 +85,7 @@ export class MeasureShirtService {
             const measure = await prisma.t_USUARIO_X_MEDIDA.findFirst({
                 where: { CI_ID_USUARIO: id },
                 select: {
-                    T_CAMISA: true,
+                    T_SACO: true,
                     CB_ESTADO: false,
                     CI_ID_USUARIO_X_MEDIDA: false,
                     CI_ID_CAMISA: false,
@@ -90,8 +97,8 @@ export class MeasureShirtService {
                 },
             });
             if (!measure) throw CustomError.notFound('Medida no encontrada');
-            const { T_CAMISA } = measure;
-            return { medida: T_CAMISA };
+            const { T_SACO } = measure;
+            return { medida: T_SACO };
         } catch (error) {
             if (error instanceof CustomError) throw error;
             return error;

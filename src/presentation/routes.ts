@@ -1,7 +1,12 @@
-import { Request, Response, Router } from 'express';
-import { AuthRoutes } from './modules/auth/routes';
-import { MeasureRoutes } from './modules/MeasureShirt/routes';
-import { ProductsRoutes } from './modules/products/routes';
+import { Router } from 'express';
+import {
+    AuthRoutes,
+    MeasurePantRoutes,
+    MeasureShirtRoutes,
+    MeasureSuitJacketRoutes,
+    MeasureWaistcoatRoutes,
+    ProductsRoutes,
+} from './modules';
 
 export class AppRoutes {
     static get routes(): Router {
@@ -10,7 +15,10 @@ export class AppRoutes {
         //#region Routes
         router.use('/api/products', ProductsRoutes.routes);
         router.use('/api/auth', AuthRoutes.routes);
-        router.use('/api/measure/shirt', MeasureRoutes.routes);
+        router.use('/api/measure/shirt', MeasureShirtRoutes.routes);
+        router.use('/api/measure/waistcoat', MeasureWaistcoatRoutes.routes);
+        router.use('/api/measure/pant', MeasurePantRoutes.routes);
+        router.use('/api/measure/suit-jacket', MeasureSuitJacketRoutes.routes);
 
         //#endregion
         return router;

@@ -5,14 +5,14 @@ import { CustomError } from '../../domain';
 import { RegisterProductDto } from '../../domain/dtos';
 
 export class ProductsService {
-
     public createProduct = async (registerProductDto: RegisterProductDto) => {
         const existProduct = await prisma.t_PRODUCTO.findFirst({
             where: { CV_NOMBRE: registerProductDto.Nombre },
         });
-        if (existProduct) throw "El producto ya existe, modifiquelo";
+        if (existProduct)
+            throw CustomError.badRequest('El producto ya existe, modifiquelo');
         try {
-            console.log("Ingreso al try");
+            console.log('Ingreso al try');
             const product = await prisma.t_PRODUCTO.create({
                 data: {
                     CV_NOMBRE: registerProductDto.Nombre,
@@ -24,10 +24,11 @@ export class ProductsService {
                     CB_ESTADO: true,
                 },
             });
-            return {product,};
+            return { product };
         } catch (error) {
-            console.error("Error al crear el producto:", error);
+            if (error instanceof CustomError) throw error;
+            console.error('Error al crear el producto:', error);
             throw CustomError.internalServer('Error creando producto');
         }
-    } /*MINUTO HORA CON 35 */
+    }; /*MINUTO HORA CON 35 */
 }

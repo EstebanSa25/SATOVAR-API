@@ -1,25 +1,25 @@
 import { Request, Response } from 'express';
 import {
     CustomErrorImpl,
-    RegisterMeasureShirtDto,
+    RegisterMeasureWaistcoatDto,
     Repository,
 } from '../../../domain';
-import { MeasureShirtService } from '../../services/measure-shirt.service';
+import { MeasureWaistcoatService } from '../../services';
 
-export class MeasureShirtController implements Repository {
+export class MeasureWaistcoatController implements Repository {
     constructor(
-        private readonly measureShirtService: MeasureShirtService,
+        private readonly measureWaistcoatService: MeasureWaistcoatService,
         private customErrorImpl: CustomErrorImpl = new CustomErrorImpl()
     ) {}
     Create = (req: Request, res: Response) => {
         const { idToken } = req.body;
-        const [error, registerDTO] = RegisterMeasureShirtDto.create(
+        const [error, dto] = RegisterMeasureWaistcoatDto.create(
             req.body,
-            idToken!
+            idToken
         );
-        if (error) return res.status(400).json({ message: error });
-        this.measureShirtService
-            .registerMeasureShirt(registerDTO!)
+        if (error) return res.status(400).json({ error });
+        this.measureWaistcoatService
+            .registerMeasureWaistcoat(dto!)
             .then((measure) => res.json(measure))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
@@ -32,7 +32,7 @@ export class MeasureShirtController implements Repository {
     FindById = (req: Request, res: Response) => {
         const { idToken } = req.body;
         const { id } = req.params;
-        this.measureShirtService
+        this.measureWaistcoatService
             .findById(+id, +idToken)
             .then((measure) => res.json(measure))
             .catch((error) => this.customErrorImpl.handleError(error, res));

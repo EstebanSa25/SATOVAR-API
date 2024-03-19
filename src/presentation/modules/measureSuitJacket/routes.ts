@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import { MeasureShirtController } from './controller';
 
 import { AuthMiddleware } from '../../middlewares';
-import { MeasureShirtService } from '../../services';
+import { MeasureSuitJacketService } from '../../services';
+import { MeasureSuitJacketController } from './controller';
 
-export class MeasureShirtRoutes {
+export class MeasureSuitJacketRoutes {
     static get routes(): Router {
         const router = Router();
-        const service = new MeasureShirtService();
-        const controller = new MeasureShirtController(service);
+        const service = new MeasureSuitJacketService();
+        const controller = new MeasureSuitJacketController(service);
         router.use(AuthMiddleware.validateJWT);
         router.post('/', controller.Create);
         router.delete('/', controller.DeleteById);

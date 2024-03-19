@@ -1,25 +1,22 @@
 import { Request, Response } from 'express';
 import {
     CustomErrorImpl,
-    RegisterMeasureShirtDto,
+    RegisterMeasurePantDto,
     Repository,
 } from '../../../domain';
-import { MeasureShirtService } from '../../services/measure-shirt.service';
+import { MeasurePantService } from '../../services';
 
-export class MeasureShirtController implements Repository {
+export class MeasurePantController implements Repository {
     constructor(
-        private readonly measureShirtService: MeasureShirtService,
+        private readonly service: MeasurePantService,
         private customErrorImpl: CustomErrorImpl = new CustomErrorImpl()
     ) {}
     Create = (req: Request, res: Response) => {
         const { idToken } = req.body;
-        const [error, registerDTO] = RegisterMeasureShirtDto.create(
-            req.body,
-            idToken!
-        );
-        if (error) return res.status(400).json({ message: error });
-        this.measureShirtService
-            .registerMeasureShirt(registerDTO!)
+        const [error, dto] = RegisterMeasurePantDto.create(req.body, idToken!);
+        if (error) return res.json({ error });
+        this.service
+            .registerMeasurePant(dto!)
             .then((measure) => res.json(measure))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
@@ -32,7 +29,7 @@ export class MeasureShirtController implements Repository {
     FindById = (req: Request, res: Response) => {
         const { idToken } = req.body;
         const { id } = req.params;
-        this.measureShirtService
+        this.service
             .findById(+id, +idToken)
             .then((measure) => res.json(measure))
             .catch((error) => this.customErrorImpl.handleError(error, res));

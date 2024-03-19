@@ -21,6 +21,7 @@ export class AuthService {
             const { CV_CLAVE, ...userWithoutCLAVE } = user;
             return { userWithoutCLAVE };
         } catch (error) {
+            if (error instanceof CustomError) throw error;
             console.log(error);
             throw CustomError.internalServer('Error getting user');
         }
@@ -34,6 +35,7 @@ export class AuthService {
             );
             return usersWithoutCLAVE;
         } catch (error) {
+            if (error instanceof CustomError) throw error;
             console.log(error);
             return CustomError.internalServer('Error getting users');
         }
@@ -79,10 +81,12 @@ export class AuthService {
                 },
             });
             this.sendEmailValidationLink(registerUserDto.Correo);
+            const { CV_CLAVE, ...userWithoutCLAVE } = user;
             return {
-                user,
+                userWithoutCLAVE,
             };
         } catch (error) {
+            if (error instanceof CustomError) throw error;
             return error;
             // throw CustomError.internalServer('Error creating user');
         }
@@ -99,6 +103,7 @@ export class AuthService {
             });
             return true;
         } catch (error) {
+            if (error instanceof CustomError) throw error;
             console.log(error);
             throw CustomError.internalServer('Error deleting user');
         }
@@ -174,10 +179,32 @@ export class AuthService {
                 data: { CB_ESTADO: true },
             });
         } catch (error) {
+            if (error instanceof CustomError) throw error;
             console.log(error);
             throw CustomError.internalServer('Error validating email');
         }
 
         return EmailValidationSuccess();
     };
+    async revalidateToken(id: number) {
+        const token = await JwtAdapter.generateToken({ id });
+        if (!token) throw CustomError.internalServer('Error generando token');
+        try {
+            const user = await prisma.t_USUARIO.findUnique({
+                where: { CI_ID_USUARIO: id },
+            });
+            if (!user) throw CustomError.notFound('Usuario no encontrado');
+            const { CV_CLAVE, ...userWithoutCLAVE } = user;
+            return {
+                user: userWithoutCLAVE,
+                ok: true,
+                msg: 'renew',
+                token,
+            };
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            console.log(error);
+            return error;
+        }
+    }
 }
