@@ -12,27 +12,17 @@ import { EmailService } from './email.service';
 
 export class AuthService {
     constructor(private readonly emailService: EmailService) {}
-    async getUserById(id: number, tokenId: number) {
+    async getUserById(id: number) {
         try {
-            const user = await prisma.t_USUARIO.findFirst({
-                where: { CI_ID_USUARIO: +id },
+            const user = await prisma.t_USUARIO.findUnique({
+                where: { CI_ID_USUARIO: id },
             });
             if (!user) throw CustomError.notFound('User not found');
-            if (
-                user.CI_ID_USUARIO !== tokenId ||
-                user.CB_ESTADO === false ||
-                user.CI_ID_ROL === Rol.Admin
-            ) {
-                throw CustomError.unauthorized(
-                    'No tienes permisos para ver este usuario'
-                );
-            }
-
             const { CV_CLAVE, ...userWithoutCLAVE } = user;
             return { userWithoutCLAVE };
         } catch (error) {
             console.log(error);
-            return error;
+            throw CustomError.internalServer('Error getting user');
         }
     }
     async getAllUsers() {
@@ -190,24 +180,4 @@ export class AuthService {
 
         return EmailValidationSuccess();
     };
-    async revalidateToken(id: number) {
-        const token = await JwtAdapter.generateToken({ id });
-        if (!token) throw CustomError.internalServer('Error generando token');
-        try {
-            const user = await prisma.t_USUARIO.findUnique({
-                where: { CI_ID_USUARIO: id },
-            });
-            if (!user) throw CustomError.notFound('Usuario no encontrado');
-            const { CV_CLAVE, ...userWithoutCLAVE } = user;
-            return {
-                user: userWithoutCLAVE,
-                ok: true,
-                msg: 'renew',
-                token,
-            };
-        } catch (error) {
-            console.log(error);
-            return error;
-        }
-    }
 }

@@ -30,7 +30,7 @@ export class AuthMiddleware {
             // return res.status(401).json({ error: 'Invalid token - user' });
 
             // todo: validar si el usuario está activo
-            req.body.idToken = payload.id;
+
             // req.body.user = UserEntity.fromObject(user);
 
             next();

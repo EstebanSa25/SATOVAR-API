@@ -8,6 +8,7 @@ import {
 } from '../../../domain/dtos';
 import { AuthService } from '../../services/auth.service';
 import { CustomErrorImpl } from '../../../domain/errors/custom.error.impl';
+import { validateEmail } from '../../../helpers/validateEmail.helper';
 
 export class AuthController implements Repository {
     constructor(
@@ -41,9 +42,8 @@ export class AuthController implements Repository {
     };
     FindById = (req: Request, res: Response) => {
         const { id } = req.params;
-        const { idToken } = req.body;
         this.authService
-            .getUserById(+id, idToken)
+            .getUserById(+id)
             .then((user) => res.json(user))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
@@ -72,14 +72,6 @@ export class AuthController implements Repository {
         if (error) return res.status(400).json({ error });
         this.authService
             .loginUser(loginDTO!)
-            .then((user) => res.json(user))
-            .catch((error) => this.customErrorImpl.handleError(error, res));
-    };
-    RevalidateToken = (req: Request, res: Response) => {
-        const { idToken } = req.body;
-
-        this.authService
-            .revalidateToken(idToken)
             .then((user) => res.json(user))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
