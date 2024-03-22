@@ -7,6 +7,7 @@ import {
     MeasureWaistcoatRoutes,
     ProductsRoutes,
 } from './modules';
+import { BuyProductsRoutes } from './modules/buy';
 
 export class AppRoutes {
     static get routes(): Router {
@@ -19,6 +20,7 @@ export class AppRoutes {
         router.use('/api/measure/waistcoat', MeasureWaistcoatRoutes.routes);
         router.use('/api/measure/pant', MeasurePantRoutes.routes);
         router.use('/api/measure/suit-jacket', MeasureSuitJacketRoutes.routes);
+        router.use('/api/buy/products', BuyProductsRoutes.routes);
 
         //#endregion
         return router;
