@@ -8,3 +8,4 @@ export * from './measure-waistcoat.service';
 export * from './measure-pant.service';
 export * from './measure-suit-jacket.service';
 export * from './buy-products.service';
+export * from './size.service';

@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import {
     AuthRoutes,
+    BuyProductsRoutes,
     MeasurePantRoutes,
     MeasureShirtRoutes,
     MeasureSuitJacketRoutes,
     MeasureWaistcoatRoutes,
     ProductsRoutes,
+    SizeRoutes,
 } from './modules';
-import { BuyProductsRoutes } from './modules/buy';
 
 export class AppRoutes {
     static get routes(): Router {
@@ -21,6 +22,7 @@ export class AppRoutes {
         router.use('/api/measure/pant', MeasurePantRoutes.routes);
         router.use('/api/measure/suit-jacket', MeasureSuitJacketRoutes.routes);
         router.use('/api/buy/products', BuyProductsRoutes.routes);
+        router.use('/api/products/size', SizeRoutes.routes);
 
         //#endregion
         return router;
