@@ -1,15 +1,5 @@
 import { prisma } from '../prisma';
 
-(async () => {
-    main();
-})();
-
-function main() {
-    InsertRole();
-    InsertCategory();
-    InsertCatalog();
-}
-
 const InsertRole = async () => {
     await prisma.t_ROL.create({
         data: {
@@ -66,3 +56,62 @@ const InsertCatalog = async () => {
         },
     });
 };
+
+const InsertTela = async () => {
+    await prisma.t_TELA.create({
+        data: {
+            CV_NOMBRE: 'CasimirPeruano',
+            CB_ESTADO: true,
+            CD_PRECIO: 100,
+            CV_FOTO: 'https://www.google.com',
+        },
+    });
+    await prisma.t_TELA.create({
+        data: {
+            CV_NOMBRE: 'CasimirIngles',
+            CB_ESTADO: true,
+            CD_PRECIO: 200,
+            CV_FOTO: 'https://www.google2.com',
+        },
+    });
+};
+
+const InsertSize = async () => {
+    await prisma.t_TALLA.create({
+        data: {
+            CV_TALLA: 'S',
+        },
+    });
+    await prisma.t_TALLA.create({
+        data: {
+            CV_TALLA: 'M',
+        },
+    });
+    await prisma.t_TALLA.create({
+        data: {
+            CV_TALLA: 'L',
+        },
+    });
+    await prisma.t_TALLA.create({
+        data: {
+            CV_TALLA: 'XL',
+        },
+    });
+    await prisma.t_TALLA.create({
+        data: {
+            CV_TALLA: 'XXL',
+        },
+    });
+};
+
+(async () => {
+    main();
+})();
+
+function main() {
+    InsertRole();
+    InsertCategory();
+    InsertCatalog();
+    InsertTela();
+    InsertSize();
+}

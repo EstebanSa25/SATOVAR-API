@@ -14,7 +14,7 @@ export class AppRoutes {
         const router = Router();
 
         //#region Routes
-        router.use('/api/products', ProductsRoutes.routes);
+        router.use('/api/Products', ProductsRoutes.routes);
         router.use('/api/auth', AuthRoutes.routes);
         router.use('/api/measure/shirt', MeasureShirtRoutes.routes);
         router.use('/api/measure/waistcoat', MeasureWaistcoatRoutes.routes);

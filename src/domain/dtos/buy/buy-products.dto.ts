@@ -16,9 +16,6 @@ export class BuyProductsDTO {
         if (isNaN(subtotal)) return ['subtotal debe ser un número'];
         if (!impuestos) return ['impuestos es requerido'];
         if (isNaN(impuestos)) return ['impuestos debe ser un número'];
-        if (!descuentos) return ['descuentos es requerido'];
-        if (isNaN(descuentos)) return ['descuentos debe ser un número'];
-
         let fecha = new Date(Date.now());
         if (!total) return ['total es requerido'];
         if (isNaN(total)) return ['total debe ser un número'];

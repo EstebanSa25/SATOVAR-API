@@ -82,6 +82,7 @@ export class MeasureSuitJacketService {
                 'No tiene permisos para realizar esta acción'
             );
         try {
+            await prisma.$queryRaw`SELECT * FROM t_USUARIO_X_MEDIDA WHERE CI_ID_USUARIO = ${id}`;
             const measure = await prisma.t_USUARIO_X_MEDIDA.findFirst({
                 where: { CI_ID_USUARIO: id },
                 select: {

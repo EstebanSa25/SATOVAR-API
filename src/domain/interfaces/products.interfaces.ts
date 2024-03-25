@@ -19,4 +19,5 @@ export interface ProductEntityBuy {
     cantidad: number;
     precio: number;
     nombre: string;
+    talla: number | string;
 }

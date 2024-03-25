@@ -8,6 +8,7 @@ export class BuyProductsService {
     async BuyProducts(buyProductsDTO: BuyProductsDTO, idUsuario: number) {
         try {
             const arrayProductos = Array.from(buyProductsDTO.productos);
+            console.log(arrayProductos);
             const products = await Promise.all(
                 arrayProductos.map(async (product: any) => {
                     const productExist = await prisma.t_PRODUCTO.findUnique({
@@ -25,9 +26,37 @@ export class BuyProductsService {
                         cantidad: +product.cantidad,
                         precio: +productExist.CD_PRECIO,
                         nombre: productExist.CV_NOMBRE,
+                        talla: +product.talla,
                     } as ProductEntityBuy;
                 })
             );
+            const productsF = await Promise.all(
+                products.map(async (product) => {
+                    const productxtalla =
+                        await prisma.t_PRODUCTO_X_TALLA.findFirst({
+                            where: {
+                                CI_ID_PRODUCTO: product.id,
+                                CI_ID_TALLA: +product.talla,
+                            },
+                        });
+                    if (!productxtalla)
+                        throw CustomError.badRequest('Producto no encontrado');
+                    if (productxtalla.CI_CANTIDAD < product.cantidad)
+                        throw CustomError.badRequest('No hay suficiente stock');
+                    await prisma.t_PRODUCTO_X_TALLA.update({
+                        where: {
+                            CI_ID_PROD_X_TALLA:
+                                productxtalla.CI_ID_PROD_X_TALLA,
+                        },
+                        data: {
+                            CI_CANTIDAD: {
+                                decrement: product.cantidad,
+                            },
+                        },
+                    });
+                })
+            );
+
             const buy = await prisma.t_COMPRA.create({
                 data: {
                     CI_ID_USUARIO: idUsuario,

@@ -175,6 +175,7 @@ export const InvoiceEmailTemplate = (invoice: Invoice): string => {
 					<td>
             Subtotal: ₡ ${invoice.subtotal}<br />
             Impuestos: ₡ ${invoice.impuestos}<br />
+			Envio: ₡ 3000<br />
           <br />
           Total: ₡ ${invoice.total}</td>
 				</tr>

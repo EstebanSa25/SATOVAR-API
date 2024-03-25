@@ -2,7 +2,11 @@
 import { prisma } from '../../data/prisma';
 import { CustomError } from '../../domain';
 //import { CustomError, T_Shirt_Entity } from '../../domain';
-import { RegisterProductDto } from '../../domain/dtos';
+import {
+    DeleteProductDto,
+    RegisterProductDto,
+    UpdateProductDto,
+} from '../../domain/dtos';
 
 export class ProductsService {
     public createProduct = async (registerProductDto: RegisterProductDto) => {
@@ -30,5 +34,119 @@ export class ProductsService {
             console.error('Error al crear el producto:', error);
             throw CustomError.internalServer('Error creando producto');
         }
-    }; /*MINUTO HORA CON 35 */
+    };
+
+    async deleteProduct(deleteProductDto: DeleteProductDto) {
+        const existProduct = await prisma.t_PRODUCTO.findFirst({
+            where: { CI_ID_PRODUCTO: deleteProductDto.id },
+        });
+        if (!existProduct) throw 'Producto no existe';
+        try {
+            await prisma.t_PRODUCTO.update({
+                where: { CI_ID_PRODUCTO: deleteProductDto.id },
+                data: { CB_ESTADO: false },
+            });
+            return true;
+        } catch (error) {
+            throw CustomError.internalServer('Error borrando producto');
+        }
+    }
+
+    async updateProduct(updateProductDto: UpdateProductDto) {
+        const Idproduct = await prisma.t_PRODUCTO.findUnique({
+            where: { CI_ID_PRODUCTO: updateProductDto.Id },
+        });
+        if (!Idproduct) throw CustomError.notFound('Product not found');
+        try {
+            const productUpdate = await prisma.t_PRODUCTO.update({
+                where: { CI_ID_PRODUCTO: updateProductDto.Id },
+                data: {
+                    CV_NOMBRE: updateProductDto.Nombre,
+                    CV_FOTO: updateProductDto.Foto,
+                    CI_ID_TELA: updateProductDto.Tela,
+                    CD_PRECIO: updateProductDto.Precio,
+                    CI_ID_CATEGORIA: updateProductDto.Categoria,
+                    CI_ID_CATALOGO: updateProductDto.Catalogo,
+                    CB_ESTADO: true,
+                },
+            });
+            return { productUpdate };
+        } catch (error) {
+            throw CustomError.internalServer('Error actualizando Producto');
+        }
+    }
+
+    async getAllProducts(size: boolean) {
+        try {
+            if (size === true) {
+                const AllProducts = await prisma.t_PRODUCTO.findMany({
+                    where: {
+                        CB_ESTADO: true,
+                    },
+                    include: {
+                        T_PRODUCTO_X_TALLA: {
+                            select: { T_TALLA: true, CI_CANTIDAD: true },
+                        },
+                        T_TELA: {
+                            select: { CV_NOMBRE: true },
+                        },
+                    },
+                });
+
+                //Quitar las tallas agotadas
+
+                AllProducts.map((product) => {
+                    product.T_PRODUCTO_X_TALLA =
+                        product.T_PRODUCTO_X_TALLA.filter((size) => {
+                            if (size.CI_CANTIDAD > 0) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        });
+                });
+
+                return AllProducts;
+            } else {
+                const AllProducts = await prisma.t_PRODUCTO.findMany();
+                return AllProducts;
+            }
+            // const productsWithoutCLAVE = AllProducts.map(
+            //     ({ CB_ESTADO, ...rest }) => rest
+            // );
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            console.log(error);
+            return CustomError.internalServer('Error getting products');
+        }
+    }
+    async getAllProductsWithSize() {
+        try {
+            const AllProducts = (await prisma.t_PRODUCTO.findMany()).join(
+                't_PRODUCTO_X_TALLA'
+            );
+            // const productsWithoutCLAVE = AllProducts.map(
+            //     ({ CB_ESTADO, ...rest }) => rest
+            // );
+            return AllProducts;
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            console.log(error);
+            return CustomError.internalServer('Error getting products');
+        }
+    }
+
+    async getProductById(id: number) {
+        try {
+            const GetProduct = await prisma.t_PRODUCTO.findUnique({
+                where: { CI_ID_PRODUCTO: id },
+            });
+            if (!GetProduct) throw CustomError.notFound('Product not found');
+            return { GetProduct };
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            console.log(error);
+            throw CustomError.internalServer('Error getting Product');
+        }
+    }
 }
