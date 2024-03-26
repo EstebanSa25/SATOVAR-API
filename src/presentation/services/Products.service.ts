@@ -61,17 +61,21 @@ export class ProductsService {
             const productUpdate = await prisma.t_PRODUCTO.update({
                 where: { CI_ID_PRODUCTO: updateProductDto.Id },
                 data: {
-                    CV_NOMBRE: updateProductDto.Nombre,
-                    CV_FOTO: updateProductDto.Foto,
-                    CI_ID_TELA: updateProductDto.Tela,
-                    CD_PRECIO: updateProductDto.Precio,
-                    CI_ID_CATEGORIA: updateProductDto.Categoria,
-                    CI_ID_CATALOGO: updateProductDto.Catalogo,
+                    CV_NOMBRE: updateProductDto.Nombre || Idproduct.CV_NOMBRE,
+                    CV_FOTO: updateProductDto.Foto || Idproduct.CV_FOTO,
+                    CI_ID_TELA: updateProductDto.Tela || Idproduct.CI_ID_TELA,
+                    CD_PRECIO: updateProductDto.Precio || Idproduct.CD_PRECIO,
+                    CI_ID_CATEGORIA:
+                        updateProductDto.Categoria || Idproduct.CI_ID_CATEGORIA,
+                    CI_ID_CATALOGO:
+                        updateProductDto.Catalogo || Idproduct.CI_ID_CATALOGO,
                     CB_ESTADO: true,
                 },
             });
             return { productUpdate };
         } catch (error) {
+            if (error instanceof CustomError) throw error;
+            console.log(error);
             throw CustomError.internalServer('Error actualizando Producto');
         }
     }
@@ -89,6 +93,11 @@ export class ProductsService {
                         },
                         T_TELA: {
                             select: { CV_NOMBRE: true },
+                        },
+                        T_CATALOGO: {
+                            select: {
+                                CI_ID_CATALOGO: true,
+                            },
                         },
                     },
                 });

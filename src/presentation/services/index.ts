@@ -9,3 +9,7 @@ export * from './measure-pant.service';
 export * from './measure-suit-jacket.service';
 export * from './buy-products.service';
 export * from './size.service';
+export * from './category.service';
+export * from './sizes.service';
+export * from './fabric.service';
+export * from './style.service';

@@ -123,7 +123,9 @@ export class BuyProductsService {
                     CI_ID_PRODUCTO: product.id,
                     CI_CANTIDAD: product.cantidad,
                     CD_PRECIO: product.precio,
-                    CF_FECHA_ENTREGA: new Date('2024-12-31'),
+                    CF_FECHA_ENTREGA: new Date(
+                        Date.now() + 5 * 24 * 60 * 60 * 1000
+                    ),
                 },
             });
             if (!detalle)

@@ -2,12 +2,16 @@ import { Router } from 'express';
 import {
     AuthRoutes,
     BuyProductsRoutes,
+    CategoryRoutes,
+    FabricRoutes,
     MeasurePantRoutes,
     MeasureShirtRoutes,
     MeasureSuitJacketRoutes,
     MeasureWaistcoatRoutes,
     ProductsRoutes,
     SizeRoutes,
+    SizesRoutes,
+    StyleRoutes,
 } from './modules';
 
 export class AppRoutes {
@@ -23,6 +27,10 @@ export class AppRoutes {
         router.use('/api/measure/suit-jacket', MeasureSuitJacketRoutes.routes);
         router.use('/api/buy/products', BuyProductsRoutes.routes);
         router.use('/api/products/size', SizeRoutes.routes);
+        router.use('/api/category', CategoryRoutes.routes);
+        router.use('/api/size', SizesRoutes.routes);
+        router.use('/api/fabric', FabricRoutes.routes);
+        router.use('/api/style', StyleRoutes.routes);
 
         //#endregion
         return router;

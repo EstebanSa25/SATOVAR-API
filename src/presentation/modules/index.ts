@@ -6,3 +6,7 @@ export * from './measureSuitJacket';
 export * from './products';
 export * from './buy';
 export * from './size';
+export * from './category';
+export * from './fabric';
+export * from './sizes';
+export * from './style';
