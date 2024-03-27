@@ -57,6 +57,7 @@ model T_COMPRA {
   CD_TOTAL         Decimal            @db.Decimal(10, 2)
   T_USUARIO        T_USUARIO          @relation(fields: [CI_ID_USUARIO], references: [CI_ID_USUARIO], onUpdate: NoAction, map: "FK_COMPRA_USUARIO")
   T_DETALLE_COMPRA T_DETALLE_COMPRA[]
+  T_PEDIDO         T_PEDIDO?
 }
 
 model T_DETALLE_COMPRA {
@@ -191,4 +192,29 @@ model T_USUARIO_X_MEDIDA {
   T_PANTALON             T_PANTALON? @relation(fields: [CI_ID_PANTALON], references: [CI_ID_PANTALON], onDelete: NoAction, onUpdate: NoAction, map: "FK_USUARIO_X_MEDIDA_PANTALON")
   T_SACO                 T_SACO?     @relation(fields: [CI_ID_SACO], references: [CI_ID_SACO], onDelete: NoAction, onUpdate: NoAction, map: "FK_USUARIO_X_MEDIDA_SACO")
   T_USUARIO              T_USUARIO   @relation(fields: [CI_ID_USUARIO], references: [CI_ID_USUARIO], onUpdate: NoAction, map: "FK_USUARIO_X_MEDIDA_USUARIO")
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B610300E976") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+model T_ESTADO {
+  CI_ID_ESTADO   Int        @id(map: "PK__T_ESTADO__2053C6A96ED8B320") @default(autoincrement())
+  CV_DESCRIPCION String?    @db.VarChar(80)
+  CB_ESTADO      Boolean?
+  T_PEDIDO       T_PEDIDO[]
+}
+
+model T_PEDIDO {
+  CI_ID_PEDIDO Int       @id(map: "PK__T_PEDIDO__839197564C8A2115") @default(autoincrement())
+  CI_ID_ESTADO Int?
+  CI_ID_COMPRA Int?      @unique(map: "UQ__T_PEDIDO__7F520FBA7D3A795E")
+  T_COMPRA     T_COMPRA? @relation(fields: [CI_ID_COMPRA], references: [CI_ID_COMPRA], onDelete: NoAction, onUpdate: NoAction, map: "FK_COMPRA_PEDIDO")
+  T_ESTADO     T_ESTADO? @relation(fields: [CI_ID_ESTADO], references: [CI_ID_ESTADO], onDelete: NoAction, onUpdate: NoAction, map: "FK_ESTADO_PEDIDO")
 }

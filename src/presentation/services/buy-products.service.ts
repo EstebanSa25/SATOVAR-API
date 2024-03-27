@@ -1,6 +1,11 @@
 import { forEach } from 'lodash';
 import { prisma } from '../../data/prisma';
-import { BuyProductsDTO, CustomError, ProductEntityBuy } from '../../domain';
+import {
+    BuyProductsDTO,
+    CustomError,
+    Estado,
+    ProductEntityBuy,
+} from '../../domain';
 import { EmailService } from './email.service';
 import { InvoiceEmailTemplate } from '../../helpers';
 export class BuyProductsService {
@@ -67,6 +72,15 @@ export class BuyProductsService {
                     CD_TOTAL: buyProductsDTO.total,
                 },
             });
+            if (!buy) throw CustomError.badRequest('Error al crear la compra');
+            const state = await prisma.t_PEDIDO.create({
+                data: {
+                    CI_ID_COMPRA: buy.CI_ID_COMPRA,
+                    CI_ID_ESTADO: Estado.Pendiente,
+                },
+            });
+            if (!state)
+                throw CustomError.badRequest('Error al crear el estado');
             if (!buy) throw CustomError.badRequest('Error al crear la compra');
             await Promise.all(
                 forEach(products, async (product) => {
