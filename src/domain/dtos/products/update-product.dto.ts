@@ -1,3 +1,5 @@
+import { SizeInterface } from '../../interfaces';
+
 export class UpdateProductDto {
     private constructor(
         public readonly Id: number,
@@ -6,12 +8,24 @@ export class UpdateProductDto {
         public readonly Tela: number, //pertenece a uno
         public readonly Precio: number,
         public readonly Categoria: number, //pertenece a varios
-        public readonly Catalogo: number //pertenece a uno,
+        public readonly Catalogo: number, //pertenece a uno,
+        public readonly Tallas: SizeInterface[],
+        public readonly Estilos: number[]
     ) {}
     static create(object: {
         [key: string]: any;
     }): [string?, UpdateProductDto?] {
-        const { Id, Nombre, Foto, Tela, Precio, Categoria, Catalogo } = object;
+        const {
+            Id,
+            Nombre,
+            Foto,
+            Tela,
+            Precio,
+            Categoria,
+            Catalogo,
+            Tallas,
+            Estilos,
+        } = object;
 
         if (!Id) return ['El id es requerido'];
         if (isNaN(Id)) return ['El id debe ser un numero'];
@@ -25,7 +39,9 @@ export class UpdateProductDto {
                 +Tela,
                 +Precio,
                 +Categoria,
-                +Catalogo
+                +Catalogo,
+                Tallas,
+                Estilos
             ),
         ];
     }

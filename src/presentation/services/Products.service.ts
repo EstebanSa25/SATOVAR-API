@@ -10,12 +10,14 @@ import {
 
 export class ProductsService {
     public createProduct = async (registerProductDto: RegisterProductDto) => {
-        const existProduct = await prisma.t_PRODUCTO.findFirst({
-            where: { CV_NOMBRE: registerProductDto.Nombre },
-        });
-        if (existProduct)
-            throw CustomError.badRequest('El producto ya existe, modifiquelo');
         try {
+            const existProduct = await prisma.t_PRODUCTO.findFirst({
+                where: { CV_NOMBRE: registerProductDto.Nombre },
+            });
+            if (existProduct)
+                throw CustomError.badRequest(
+                    'El producto ya existe, modifiquelo'
+                );
             const product = await prisma.t_PRODUCTO.create({
                 data: {
                     CV_NOMBRE: registerProductDto.Nombre,
@@ -49,14 +51,14 @@ export class ProductsService {
             const styles = await Promise.all(
                 registerProductDto.Estilos.map(async (estilo: number) => {
                     const existEstilo = await prisma.t_ESTILO.findFirst({
-                        where: { CI_ID_ESTILO: estilo },
+                        where: { CI_ID_ESTILO: +estilo },
                     });
                     if (!existEstilo)
                         throw CustomError.badRequest('El estilo no existe');
                     await prisma.t_ESTILO_X_PRODUCTO.create({
                         data: {
-                            CI_ID_PRODUCTO: product.CI_ID_PRODUCTO,
-                            CI_ID_ESTILO: estilo,
+                            CI_ID_PRODUCTO: +product.CI_ID_PRODUCTO,
+                            CI_ID_ESTILO: +estilo,
                         },
                     });
                 })
@@ -103,11 +105,10 @@ export class ProductsService {
                     },
                 },
             });
-            return { productCreated };
+            return { ...productCreated };
         } catch (error) {
-            if (error instanceof CustomError) throw error;
             console.error('Error al crear el producto:', error);
-            throw CustomError.internalServer('Error creando producto');
+            if (error instanceof CustomError) throw error;
         }
     };
 
@@ -117,6 +118,12 @@ export class ProductsService {
         });
         if (!existProduct) throw 'Producto no existe';
         try {
+            await prisma.t_PRODUCTO_X_TALLA.deleteMany({
+                where: { CI_ID_PRODUCTO: deleteProductDto.id },
+            });
+            await prisma.t_ESTILO_X_PRODUCTO.deleteMany({
+                where: { CI_ID_PRODUCTO: deleteProductDto.id },
+            });
             await prisma.t_PRODUCTO.update({
                 where: { CI_ID_PRODUCTO: deleteProductDto.id },
                 data: { CB_ESTADO: false },
@@ -190,6 +197,32 @@ export class ProductsService {
                         },
                     },
                 },
+            });
+            productUpdate.T_PRODUCTO_X_TALLA.map(async (size) => {
+                updateProductDto.Tallas.map(async (talla: SizeInterface) => {
+                    await prisma.t_PRODUCTO_X_TALLA.updateMany({
+                        where: {
+                            CI_ID_PRODUCTO: updateProductDto.Id,
+                            CI_ID_TALLA: talla.Id_talla,
+                        },
+                        data: {
+                            CI_CANTIDAD: talla.Cantidad,
+                        },
+                    });
+                });
+            });
+            productUpdate.T_ESTILO_X_PRODUCTO.map(async (style) => {
+                updateProductDto.Estilos.map(async (estilo: number) => {
+                    await prisma.t_ESTILO_X_PRODUCTO.updateMany({
+                        where: {
+                            CI_ID_PRODUCTO: updateProductDto.Id,
+                            CI_ID_ESTILO: estilo,
+                        },
+                        data: {
+                            CI_ID_ESTILO: estilo,
+                        },
+                    });
+                });
             });
             return { productUpdate };
         } catch (error) {
