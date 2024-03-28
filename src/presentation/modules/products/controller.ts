@@ -15,10 +15,10 @@ export class ProductsController implements Repository {
     ) {}
 
     FindAll = (req: Request, res: Response) => {
-        const { size } = req.query;
+        const { size, relational } = req.query;
 
         this.productsService
-            .getAllProducts(size ? true : false)
+            .getAllProducts(size ? true : false, relational ? true : false)
             .then((product) => res.json(product))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };

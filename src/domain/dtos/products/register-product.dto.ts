@@ -1,4 +1,5 @@
 import { Decimal } from '@prisma/client/runtime/library';
+import { SizeInterface } from '../../interfaces';
 
 export class RegisterProductDto {
     private constructor(
@@ -7,14 +8,25 @@ export class RegisterProductDto {
         public readonly Tela: number, //pertenece a uno
         public readonly Precio: number,
         public readonly Categoria: number, //pertenece a varios
-        public readonly Catalogo: number //pertenece a uno,
+        public readonly Catalogo: number, //pertenece a uno,
+        public readonly Tallas: SizeInterface[],
+        public readonly Estilos: number[]
     ) {}
 
     static create(object: {
         [key: string]: any;
     }): [string?, RegisterProductDto?] {
-        const { Nombre, Foto, Tela, Precio, Categoria, Catalogo, Cantidad } =
-            object;
+        const {
+            Nombre,
+            Foto,
+            Tela,
+            Precio,
+            Categoria,
+            Catalogo,
+            Cantidad,
+            Tallas,
+            Estilos,
+        } = object;
 
         const telaAsNumber = Number(Tela);
         const precioAsNumber = Number(Precio);
@@ -31,7 +43,8 @@ export class RegisterProductDto {
         if (isNaN(categoriaAsNumber)) return ['Tela debe ser un número'];
         if (!Catalogo) return ['Catalogo es requerido'];
         if (isNaN(catalogoAsNumber)) return ['Catalogo debe ser un número'];
-
+        if (!Tallas) return ['Tallas es requerido'];
+        if (!Estilos) return ['Estilos es requerido'];
         return [
             undefined,
             new RegisterProductDto(
@@ -40,7 +53,9 @@ export class RegisterProductDto {
                 +Tela,
                 parseFloat(Precio),
                 +Categoria,
-                +Catalogo
+                +Catalogo,
+                Tallas,
+                Estilos
             ),
         ];
     }

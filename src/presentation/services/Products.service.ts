@@ -1,6 +1,6 @@
 //import { Console } from 'console';
 import { prisma } from '../../data/prisma';
-import { CustomError } from '../../domain';
+import { CustomError, SizeInterface } from '../../domain';
 //import { CustomError, T_Shirt_Entity } from '../../domain';
 import {
     DeleteProductDto,
@@ -16,7 +16,6 @@ export class ProductsService {
         if (existProduct)
             throw CustomError.badRequest('El producto ya existe, modifiquelo');
         try {
-            console.log('Ingreso al try');
             const product = await prisma.t_PRODUCTO.create({
                 data: {
                     CV_NOMBRE: registerProductDto.Nombre,
@@ -27,8 +26,84 @@ export class ProductsService {
                     CI_ID_CATALOGO: registerProductDto.Catalogo,
                     CB_ESTADO: true,
                 },
+                select: {
+                    CI_ID_PRODUCTO: true,
+                },
             });
-            return { product };
+            const sizes = await Promise.all(
+                registerProductDto.Tallas.map(async (talla: SizeInterface) => {
+                    const existTalla = await prisma.t_TALLA.findFirst({
+                        where: { CI_ID_TALLA: talla.Id_talla },
+                    });
+                    if (!existTalla)
+                        throw CustomError.badRequest('La talla no existe');
+                    await prisma.t_PRODUCTO_X_TALLA.create({
+                        data: {
+                            CI_ID_PRODUCTO: product.CI_ID_PRODUCTO,
+                            CI_ID_TALLA: talla.Id_talla,
+                            CI_CANTIDAD: talla.Cantidad,
+                        },
+                    });
+                })
+            );
+            const styles = await Promise.all(
+                registerProductDto.Estilos.map(async (estilo: number) => {
+                    const existEstilo = await prisma.t_ESTILO.findFirst({
+                        where: { CI_ID_ESTILO: estilo },
+                    });
+                    if (!existEstilo)
+                        throw CustomError.badRequest('El estilo no existe');
+                    await prisma.t_ESTILO_X_PRODUCTO.create({
+                        data: {
+                            CI_ID_PRODUCTO: product.CI_ID_PRODUCTO,
+                            CI_ID_ESTILO: estilo,
+                        },
+                    });
+                })
+            );
+
+            const productCreated = await prisma.t_PRODUCTO.findUnique({
+                where: { CI_ID_PRODUCTO: product.CI_ID_PRODUCTO },
+                select: {
+                    CI_ID_PRODUCTO: true,
+                    CV_NOMBRE: true,
+                    CV_FOTO: true,
+                    CD_PRECIO: true,
+                    CB_ESTADO: true,
+                    T_PRODUCTO_X_TALLA: {
+                        select: {
+                            CI_CANTIDAD: true,
+                            T_TALLA: {
+                                select: {
+                                    CV_TALLA: true,
+                                    CI_ID_TALLA: true,
+                                },
+                            },
+                        },
+                    },
+                    T_TELA: {
+                        select: { CV_NOMBRE: true, CI_ID_TELA: true },
+                    },
+                    T_ESTILO_X_PRODUCTO: {
+                        select: {
+                            CI_ID_ESTILO_X_PRODUCTO: true,
+                            T_ESTILO: {
+                                select: {
+                                    CI_ID_ESTILO: true,
+                                    CV_DESCRIPCION: true,
+                                },
+                            },
+                        },
+                    },
+                    T_CATALOGO: {
+                        select: { CI_ID_CATALOGO: true, CV_DESCRIPCION: true },
+                    },
+                    T_CATEGORIA: {
+                        select: { CI_ID_CATEGORIA: true, CV_DESCRIPCION: true },
+                    },
+                },
+            });
+            return { productCreated };
         } catch (error) {
             if (error instanceof CustomError) throw error;
             console.error('Error al crear el producto:', error);
@@ -71,6 +146,50 @@ export class ProductsService {
                         updateProductDto.Catalogo || Idproduct.CI_ID_CATALOGO,
                     CB_ESTADO: true,
                 },
+                select: {
+                    CI_ID_PRODUCTO: true,
+                    CV_NOMBRE: true,
+                    CV_FOTO: true,
+                    CD_PRECIO: true,
+                    CB_ESTADO: true,
+                    T_PRODUCTO_X_TALLA: {
+                        select: {
+                            CI_CANTIDAD: true,
+                            T_TALLA: {
+                                select: {
+                                    CV_TALLA: true,
+                                    CI_ID_TALLA: true,
+                                },
+                            },
+                        },
+                    },
+                    T_TELA: {
+                        select: { CV_NOMBRE: true, CI_ID_TELA: true },
+                    },
+                    T_ESTILO_X_PRODUCTO: {
+                        select: {
+                            CI_ID_ESTILO_X_PRODUCTO: true,
+                            T_ESTILO: {
+                                select: {
+                                    CI_ID_ESTILO: true,
+                                    CV_DESCRIPCION: true,
+                                },
+                            },
+                        },
+                    },
+                    T_CATALOGO: {
+                        select: {
+                            CI_ID_CATALOGO: true,
+                            CV_DESCRIPCION: true,
+                        },
+                    },
+                    T_CATEGORIA: {
+                        select: {
+                            CI_ID_CATEGORIA: true,
+                            CV_DESCRIPCION: true,
+                        },
+                    },
+                },
             });
             return { productUpdate };
         } catch (error) {
@@ -80,7 +199,7 @@ export class ProductsService {
         }
     }
 
-    async getAllProducts(size: boolean) {
+    async getAllProducts(size: boolean, relational: boolean) {
         try {
             if (size === true) {
                 const AllProducts = await prisma.t_PRODUCTO.findMany({
@@ -99,8 +218,67 @@ export class ProductsService {
                                 CI_ID_CATALOGO: true,
                             },
                         },
+                        T_ESTILO_X_PRODUCTO: {
+                            select: {
+                                T_ESTILO: {
+                                    select: {
+                                        CI_ID_ESTILO: true,
+                                        CV_DESCRIPCION: true,
+                                    },
+                                },
+                            },
+                        },
                     },
                 });
+                if (relational === true) {
+                    const products = await prisma.t_PRODUCTO.findMany({
+                        select: {
+                            CI_ID_PRODUCTO: true,
+                            CV_NOMBRE: true,
+                            CV_FOTO: true,
+                            CD_PRECIO: true,
+                            CB_ESTADO: true,
+                            T_PRODUCTO_X_TALLA: {
+                                select: {
+                                    CI_CANTIDAD: true,
+                                    T_TALLA: {
+                                        select: {
+                                            CV_TALLA: true,
+                                            CI_ID_TALLA: true,
+                                        },
+                                    },
+                                },
+                            },
+                            T_TELA: {
+                                select: { CV_NOMBRE: true, CI_ID_TELA: true },
+                            },
+                            T_ESTILO_X_PRODUCTO: {
+                                select: {
+                                    CI_ID_ESTILO_X_PRODUCTO: true,
+                                    T_ESTILO: {
+                                        select: {
+                                            CI_ID_ESTILO: true,
+                                            CV_DESCRIPCION: true,
+                                        },
+                                    },
+                                },
+                            },
+                            T_CATALOGO: {
+                                select: {
+                                    CI_ID_CATALOGO: true,
+                                    CV_DESCRIPCION: true,
+                                },
+                            },
+                            T_CATEGORIA: {
+                                select: {
+                                    CI_ID_CATEGORIA: true,
+                                    CV_DESCRIPCION: true,
+                                },
+                            },
+                        },
+                    });
+                    return products;
+                }
 
                 //Quitar las tallas agotadas
 
