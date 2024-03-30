@@ -13,3 +13,4 @@ export * from './category.service';
 export * from './sizes.service';
 export * from './fabric.service';
 export * from './style.service';
+export * from './dashboard.service';

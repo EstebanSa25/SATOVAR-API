@@ -5,3 +5,5 @@ export * from './products.interfaces';
 export * from './invoice.interface';
 export * from './estado.interface';
 export * from './size.interface';
+export * from './estado.interface';
+export * from './sales.interface';

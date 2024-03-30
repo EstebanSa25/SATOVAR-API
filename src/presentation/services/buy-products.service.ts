@@ -5,6 +5,7 @@ import {
     CustomError,
     Estado,
     ProductEntityBuy,
+    Rol,
 } from '../../domain';
 import { EmailService } from './email.service';
 import { InvoiceEmailTemplate } from '../../helpers';
@@ -150,6 +151,93 @@ export class BuyProductsService {
             console.log(error);
             if (error instanceof CustomError) throw error;
             return error;
+        }
+    }
+    async GetOrders(id: number) {
+        try {
+            const user = await prisma.t_USUARIO.findUnique({
+                where: { CI_ID_USUARIO: id },
+                select: {
+                    CI_ID_ROL: true,
+                },
+            });
+            if (!user) throw CustomError.badRequest('Usuario no encontrado');
+            if (user.CI_ID_ROL !== Rol.Admin)
+                throw CustomError.unauthorized(
+                    'No tienes permisos para realizar esta acción'
+                );
+            const orders = await prisma.t_PEDIDO.findMany({
+                select: {
+                    CI_ID_ESTADO: true,
+                    CI_ID_PEDIDO: true,
+                    T_COMPRA: {
+                        select: {
+                            T_DETALLE_COMPRA: {
+                                select: {
+                                    CF_FECHA_ENTREGA: true,
+                                },
+                            },
+                            CD_TOTAL: true,
+                            T_USUARIO: {
+                                select: {
+                                    CV_CEDULA: true,
+                                    CV_NOMBRE: true,
+                                    CV_APELLIDO1: true,
+                                    CV_DIRECCION: true,
+                                    CV_TELEFONO: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+            if (!orders) throw CustomError.badRequest('No hay pedidos');
+            return orders;
+        } catch (error) {
+            console.log(error);
+            if (error instanceof CustomError) throw error;
+        }
+    }
+    async UpdateStatusOrder(idUsuario: number, id: number) {
+        try {
+            const existUser = await prisma.t_USUARIO.findUnique({
+                where: {
+                    CI_ID_USUARIO: idUsuario,
+                },
+                select: {
+                    CI_ID_ROL: true,
+                },
+            });
+            if (!existUser)
+                throw CustomError.badRequest('Usuario no encontrado');
+            if (existUser.CI_ID_ROL !== Rol.Admin)
+                throw CustomError.unauthorized(
+                    'No tienes permisos para realizar esta acción'
+                );
+            const order = await prisma.t_PEDIDO.findUnique({
+                where: {
+                    CI_ID_PEDIDO: id,
+                },
+                select: {
+                    CI_ID_ESTADO: true,
+                },
+            });
+            if (!order) throw CustomError.badRequest('Pedido no encontrado');
+            const productUpdate = await prisma.t_PEDIDO.update({
+                where: {
+                    CI_ID_PEDIDO: id,
+                },
+                data: {
+                    CI_ID_ESTADO:
+                        order.CI_ID_ESTADO === Estado.Completo
+                            ? Estado.Pendiente
+                            : Estado.Completo,
+                },
+            });
+            return productUpdate;
+        } catch (error) {
+            console.log(error);
+            if (error instanceof CustomError) throw error;
         }
     }
 }

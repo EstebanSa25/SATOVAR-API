@@ -10,7 +10,8 @@ export class UpdateProductDto {
         public readonly Categoria: number, //pertenece a varios
         public readonly Catalogo: number, //pertenece a uno,
         public readonly Tallas: SizeInterface[],
-        public readonly Estilos: number[]
+        public readonly Estilos: number[],
+        public readonly Estado: boolean
     ) {}
     static create(object: {
         [key: string]: any;
@@ -25,6 +26,7 @@ export class UpdateProductDto {
             Catalogo,
             Tallas,
             Estilos,
+            Estado,
         } = object;
 
         if (!Id) return ['El id es requerido'];
@@ -41,7 +43,8 @@ export class UpdateProductDto {
                 +Categoria,
                 +Catalogo,
                 Tallas,
-                Estilos
+                Estilos,
+                Estado
             ),
         ];
     }

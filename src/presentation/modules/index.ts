@@ -10,3 +10,4 @@ export * from './category';
 export * from './fabric';
 export * from './sizes';
 export * from './style';
+export * from './dashboard';

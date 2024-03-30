@@ -3,6 +3,7 @@ import {
     AuthRoutes,
     BuyProductsRoutes,
     CategoryRoutes,
+    DashboardRoutes,
     FabricRoutes,
     MeasurePantRoutes,
     MeasureShirtRoutes,
@@ -31,6 +32,7 @@ export class AppRoutes {
         router.use('/api/size', SizesRoutes.routes);
         router.use('/api/fabric', FabricRoutes.routes);
         router.use('/api/style', StyleRoutes.routes);
+        router.use('/api/dashboard', DashboardRoutes.routes);
 
         //#endregion
         return router;

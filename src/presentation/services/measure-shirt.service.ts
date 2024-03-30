@@ -63,20 +63,29 @@ export class MeasureShirtService {
         }
     }
     async findById(id: number, tokenId: number) {
-        const userExist = await prisma.t_USUARIO.findUnique({
-            where: { CI_ID_USUARIO: id },
+        const userExist = await prisma.t_USUARIO.findFirst({
+            where: {
+                OR: [{ CI_ID_USUARIO: id }, { CV_CEDULA: id.toString() }],
+            },
         });
         if (!userExist) throw CustomError.notFound('Usuario no encontrado');
-        if (
-            userExist.CI_ID_USUARIO !== tokenId &&
-            userExist.CI_ID_ROL !== Rol.Admin
-        )
+        const userAdmin = await prisma.t_USUARIO.findFirst({
+            where: { CI_ID_USUARIO: +tokenId },
+            select: { CI_ID_ROL: true },
+        });
+        let rol: number = Rol.Cliente;
+        if (userAdmin) {
+            rol = userAdmin.CI_ID_ROL;
+        } else {
+            rol = userExist.CI_ID_ROL;
+        }
+        if (userExist.CI_ID_USUARIO !== tokenId && rol !== Rol.Admin)
             throw CustomError.unauthorized(
                 'No tiene permisos para realizar esta acción'
             );
         try {
             const measure = await prisma.t_USUARIO_X_MEDIDA.findFirst({
-                where: { CI_ID_USUARIO: id },
+                where: { CI_ID_USUARIO: userExist.CI_ID_USUARIO },
                 select: {
                     T_CAMISA: true,
                     CB_ESTADO: false,

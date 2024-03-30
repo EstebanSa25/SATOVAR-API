@@ -18,6 +18,8 @@ export class BuyProductsRoutes {
         const controller = new BuyProductsController(service);
         router.use(AuthMiddleware.validateJWT);
         router.post('/', controller.BuyProducts);
+        router.get('/', controller.GetOrders);
+        router.put('/:id', controller.UpdateStatusOrder);
 
         return router;
     }

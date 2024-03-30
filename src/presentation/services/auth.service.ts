@@ -14,10 +14,15 @@ export class AuthService {
     constructor(private readonly emailService: EmailService) {}
     async getUserById(id: number) {
         try {
-            const user = await prisma.t_USUARIO.findUnique({
-                where: { CI_ID_USUARIO: id },
+            const user = await prisma.t_USUARIO.findFirst({
+                where: {
+                    OR: [{ CI_ID_USUARIO: id }, { CV_CEDULA: id.toString() }],
+                },
             });
             if (!user) throw CustomError.notFound('User not found');
+            const user2 = await prisma.t_USUARIO.findUnique({
+                where: { CV_CEDULA: id.toString() },
+            });
             const { CV_CLAVE, ...userWithoutCLAVE } = user;
             return { userWithoutCLAVE };
         } catch (error) {

@@ -42,28 +42,29 @@ export class ProductsService {
                     await prisma.t_PRODUCTO_X_TALLA.create({
                         data: {
                             CI_ID_PRODUCTO: product.CI_ID_PRODUCTO,
-                            CI_ID_TALLA: talla.Id_talla,
-                            CI_CANTIDAD: talla.Cantidad,
+                            CI_ID_TALLA: +talla.Id_talla,
+                            CI_CANTIDAD: +talla.Cantidad || 0,
                         },
                     });
                 })
             );
-            const styles = await Promise.all(
-                registerProductDto.Estilos.map(async (estilo: number) => {
-                    const existEstilo = await prisma.t_ESTILO.findFirst({
-                        where: { CI_ID_ESTILO: +estilo },
-                    });
-                    if (!existEstilo)
-                        throw CustomError.badRequest('El estilo no existe');
-                    await prisma.t_ESTILO_X_PRODUCTO.create({
-                        data: {
-                            CI_ID_PRODUCTO: +product.CI_ID_PRODUCTO,
-                            CI_ID_ESTILO: +estilo,
-                        },
-                    });
-                })
-            );
-
+            if (registerProductDto.Estilos.length > 0) {
+                const styles = await Promise.all(
+                    registerProductDto.Estilos.map(async (estilo: number) => {
+                        const existEstilo = await prisma.t_ESTILO.findFirst({
+                            where: { CI_ID_ESTILO: +estilo },
+                        });
+                        if (!existEstilo)
+                            throw CustomError.badRequest('El estilo no existe');
+                        await prisma.t_ESTILO_X_PRODUCTO.create({
+                            data: {
+                                CI_ID_PRODUCTO: +product.CI_ID_PRODUCTO,
+                                CI_ID_ESTILO: +estilo,
+                            },
+                        });
+                    })
+                );
+            }
             const productCreated = await prisma.t_PRODUCTO.findUnique({
                 where: { CI_ID_PRODUCTO: product.CI_ID_PRODUCTO },
                 select: {
@@ -118,12 +119,12 @@ export class ProductsService {
         });
         if (!existProduct) throw 'Producto no existe';
         try {
-            await prisma.t_PRODUCTO_X_TALLA.deleteMany({
-                where: { CI_ID_PRODUCTO: deleteProductDto.id },
-            });
-            await prisma.t_ESTILO_X_PRODUCTO.deleteMany({
-                where: { CI_ID_PRODUCTO: deleteProductDto.id },
-            });
+            // await prisma.t_PRODUCTO_X_TALLA.deleteMany({
+            //     where: { CI_ID_PRODUCTO: deleteProductDto.id },
+            // });
+            // await prisma.t_ESTILO_X_PRODUCTO.deleteMany({
+            //     where: { CI_ID_PRODUCTO: deleteProductDto.id },
+            // });
             await prisma.t_PRODUCTO.update({
                 where: { CI_ID_PRODUCTO: deleteProductDto.id },
                 data: { CB_ESTADO: false },
@@ -151,7 +152,7 @@ export class ProductsService {
                         updateProductDto.Categoria || Idproduct.CI_ID_CATEGORIA,
                     CI_ID_CATALOGO:
                         updateProductDto.Catalogo || Idproduct.CI_ID_CATALOGO,
-                    CB_ESTADO: true,
+                    CB_ESTADO: updateProductDto.Estado || Idproduct.CB_ESTADO,
                 },
                 select: {
                     CI_ID_PRODUCTO: true,
@@ -198,32 +199,43 @@ export class ProductsService {
                     },
                 },
             });
-            productUpdate.T_PRODUCTO_X_TALLA.map(async (size) => {
-                updateProductDto.Tallas.map(async (talla: SizeInterface) => {
-                    await prisma.t_PRODUCTO_X_TALLA.updateMany({
-                        where: {
-                            CI_ID_PRODUCTO: updateProductDto.Id,
-                            CI_ID_TALLA: talla.Id_talla,
-                        },
-                        data: {
-                            CI_CANTIDAD: talla.Cantidad,
-                        },
+            if (updateProductDto.Tallas !== undefined) {
+                if (updateProductDto.Tallas.length > 0) {
+                    productUpdate.T_PRODUCTO_X_TALLA.map(async (size) => {
+                        updateProductDto.Tallas.map(
+                            async (talla: SizeInterface) => {
+                                await prisma.t_PRODUCTO_X_TALLA.updateMany({
+                                    where: {
+                                        CI_ID_PRODUCTO: updateProductDto.Id,
+                                        CI_ID_TALLA: +talla.Id_talla,
+                                    },
+                                    data: {
+                                        CI_CANTIDAD: +talla.Cantidad || 0,
+                                    },
+                                });
+                            }
+                        );
                     });
-                });
-            });
-            productUpdate.T_ESTILO_X_PRODUCTO.map(async (style) => {
-                updateProductDto.Estilos.map(async (estilo: number) => {
-                    await prisma.t_ESTILO_X_PRODUCTO.updateMany({
-                        where: {
-                            CI_ID_PRODUCTO: updateProductDto.Id,
-                            CI_ID_ESTILO: estilo,
-                        },
-                        data: {
-                            CI_ID_ESTILO: estilo,
-                        },
+                }
+            }
+
+            if (updateProductDto.Estilos !== undefined)
+                if (updateProductDto.Estilos.length > 0) {
+                    productUpdate.T_ESTILO_X_PRODUCTO.map(async (style) => {
+                        updateProductDto.Estilos.map(async (estilo: number) => {
+                            await prisma.t_ESTILO_X_PRODUCTO.updateMany({
+                                where: {
+                                    CI_ID_PRODUCTO: updateProductDto.Id,
+                                    CI_ID_ESTILO: estilo,
+                                },
+                                data: {
+                                    CI_ID_ESTILO: estilo,
+                                },
+                            });
+                        });
                     });
-                });
-            });
+                }
+
             return { productUpdate };
         } catch (error) {
             if (error instanceof CustomError) throw error;
