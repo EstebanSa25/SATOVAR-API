@@ -19,6 +19,7 @@ export class BuyProductsRoutes {
         router.use(AuthMiddleware.validateJWT);
         router.post('/', controller.BuyProducts);
         router.get('/', controller.GetOrders);
+        router.get('/:id', controller.GetOrderById);
         router.put('/:id', controller.UpdateStatusOrder);
 
         return router;

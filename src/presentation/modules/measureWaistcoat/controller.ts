@@ -3,6 +3,7 @@ import {
     CustomErrorImpl,
     RegisterMeasureWaistcoatDto,
     Repository,
+    UpdateMeasureWaistcoatDto,
 } from '../../../domain';
 import { MeasureWaistcoatService } from '../../services';
 
@@ -19,7 +20,7 @@ export class MeasureWaistcoatController implements Repository {
         );
         if (error) return res.status(400).json({ error });
         this.measureWaistcoatService
-            .registerMeasureWaistcoat(dto!)
+            .registerMeasureWaistcoat(dto!, +idToken!)
             .then((measure) => res.json(measure))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
@@ -38,6 +39,16 @@ export class MeasureWaistcoatController implements Repository {
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
     UpdateById = (req: Request, res: Response) => {
-        throw new Error('Method not implemented.');
+        const { idToken } = req.body;
+        const { id } = req.params;
+        const [error, dto] = UpdateMeasureWaistcoatDto.create({
+            id: +id,
+            ...req.body,
+        });
+        if (error) return res.status(400).json({ error });
+        this.measureWaistcoatService
+            .updateMeasureWaistcoat(dto!, +idToken!)
+            .then((measure) => res.json(measure))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
     };
 }

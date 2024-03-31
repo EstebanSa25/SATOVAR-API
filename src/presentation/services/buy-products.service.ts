@@ -240,4 +240,49 @@ export class BuyProductsService {
             if (error instanceof CustomError) throw error;
         }
     }
+    async GetOrdersByUser(id: number, tokenId: number) {
+        try {
+            const userExist = await prisma.t_USUARIO.findFirst({
+                where: {
+                    OR: [{ CI_ID_USUARIO: id }, { CV_CEDULA: id.toString() }],
+                },
+            });
+            if (!userExist) throw CustomError.notFound('Usuario no encontrado');
+            const userAdmin = await prisma.t_USUARIO.findFirst({
+                where: { CI_ID_USUARIO: +tokenId },
+                select: { CI_ID_ROL: true },
+            });
+            if (!userAdmin)
+                throw CustomError.internalServer('Usuario no encontrado');
+            let rol: number = Rol.Cliente;
+            if (userAdmin) {
+                rol = userAdmin.CI_ID_ROL;
+            } else {
+                rol = userExist.CI_ID_ROL;
+            }
+            if (userExist.CI_ID_USUARIO !== tokenId && rol !== Rol.Admin)
+                throw CustomError.unauthorized(
+                    'No tiene permisos para realizar esta acción'
+                );
+            const orders = await prisma.t_PEDIDO.findMany({
+                where: {
+                    T_COMPRA: {
+                        CI_ID_USUARIO: userExist.CI_ID_USUARIO,
+                    },
+                },
+                select: {
+                    CI_ID_PEDIDO: true,
+                    T_COMPRA: {
+                        select: {
+                            CF_FECHA_PAGO: true,
+                        },
+                    },
+                },
+            });
+            return orders;
+        } catch (error) {
+            console.log(error);
+            if (error instanceof CustomError) throw error;
+        }
+    }
 }

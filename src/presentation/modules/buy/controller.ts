@@ -31,4 +31,13 @@ export class BuyProductsController {
             .then((order) => res.json(order))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
+
+    GetOrderById = (req: Request, res: Response) => {
+        const { idToken } = req.body;
+        const { id } = req.params;
+        this.service
+            .GetOrdersByUser(+id, +idToken)
+            .then((order) => res.json(order))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
+    };
 }

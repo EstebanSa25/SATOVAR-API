@@ -3,21 +3,32 @@ import { CustomError, RegisterMeasurePantDto, Rol } from '../../domain';
 import _ from 'lodash';
 export class MeasurePantService {
     constructor() {}
-    async registerMeasurePant(dto: RegisterMeasurePantDto) {
-        const userExist = await prisma.t_USUARIO.findUnique({
-            where: { CI_ID_USUARIO: dto.id },
+    async registerMeasurePant(dto: RegisterMeasurePantDto, tokenId: number) {
+        const userExist = await prisma.t_USUARIO.findFirst({
+            where: {
+                OR: [
+                    { CI_ID_USUARIO: dto.id },
+                    { CV_CEDULA: dto.id.toString() },
+                ],
+            },
         });
-
         if (!userExist) throw CustomError.notFound('Usuario no encontrado');
-        if (
-            userExist.CI_ID_ROL !== Rol.Admin &&
-            userExist.CI_ID_USUARIO !== dto.idToken
-        )
+        const userAdmin = await prisma.t_USUARIO.findFirst({
+            where: { CI_ID_USUARIO: +tokenId },
+            select: { CI_ID_ROL: true },
+        });
+        let rol: number = Rol.Cliente;
+        if (userAdmin) {
+            rol = userAdmin.CI_ID_ROL;
+        } else {
+            rol = userExist.CI_ID_ROL;
+        }
+        if (userExist.CI_ID_USUARIO !== tokenId && rol !== Rol.Admin)
             throw CustomError.unauthorized(
                 'No tiene permisos para realizar esta acción'
             );
         const userMeasureExist = await prisma.t_USUARIO_X_MEDIDA.findFirst({
-            where: { CI_ID_USUARIO: dto.id },
+            where: { CI_ID_USUARIO: userExist.CI_ID_USUARIO },
         });
 
         try {
@@ -44,6 +55,10 @@ export class MeasurePantService {
                         CI_ID_PANTALON: measurePant.CI_ID_PANTALON,
                     },
                 });
+                if (!user_measure)
+                    throw CustomError.internalServer(
+                        'Error al registrar la medida'
+                    );
                 return {
                     medida: user_measure,
                     estado: true,
@@ -51,36 +66,50 @@ export class MeasurePantService {
             }
             const user_measure = await prisma.t_USUARIO_X_MEDIDA.create({
                 data: {
-                    CI_ID_USUARIO: dto.id,
+                    CI_ID_USUARIO: userExist.CI_ID_USUARIO,
                     CI_ID_PANTALON: measurePant.CI_ID_PANTALON,
                     CV_MEDIDAS_DE: 'Pantalon',
                     CB_ESTADO: true,
                 },
             });
+            if (!user_measure)
+                throw CustomError.internalServer(
+                    'Error al registrar la medida'
+                );
             return {
                 medida: measurePant,
                 estado: true,
             };
         } catch (error) {
+            console.log(error);
             if (error instanceof CustomError) throw error;
             return error;
         }
     }
     async findById(id: number, tokenId: number) {
-        const userExist = await prisma.t_USUARIO.findUnique({
-            where: { CI_ID_USUARIO: id },
+        const userExist = await prisma.t_USUARIO.findFirst({
+            where: {
+                OR: [{ CI_ID_USUARIO: id }, { CV_CEDULA: id.toString() }],
+            },
         });
         if (!userExist) throw CustomError.notFound('Usuario no encontrado');
-        if (
-            userExist.CI_ID_USUARIO !== tokenId &&
-            userExist.CI_ID_ROL !== Rol.Admin
-        )
+        const userAdmin = await prisma.t_USUARIO.findFirst({
+            where: { CI_ID_USUARIO: +tokenId },
+            select: { CI_ID_ROL: true },
+        });
+        let rol: number = Rol.Cliente;
+        if (userAdmin) {
+            rol = userAdmin.CI_ID_ROL;
+        } else {
+            rol = userExist.CI_ID_ROL;
+        }
+        if (userExist.CI_ID_USUARIO !== tokenId && rol !== Rol.Admin)
             throw CustomError.unauthorized(
                 'No tiene permisos para realizar esta acción'
             );
         try {
             const measure = await prisma.t_USUARIO_X_MEDIDA.findFirst({
-                where: { CI_ID_USUARIO: id },
+                where: { CI_ID_USUARIO: userExist.CI_ID_USUARIO },
                 select: {
                     T_PANTALON: true,
                     CB_ESTADO: false,

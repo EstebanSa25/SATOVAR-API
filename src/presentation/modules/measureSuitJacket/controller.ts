@@ -19,7 +19,7 @@ export class MeasureSuitJacketController implements Repository {
         );
         if (error) return res.status(400).json({ message: error });
         this.service
-            .registerMeasureSuitJacket(registerDTO!)
+            .registerMeasureSuitJacket(registerDTO!, +idToken!)
             .then((measure) => res.json(measure))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };

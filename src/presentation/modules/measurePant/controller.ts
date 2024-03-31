@@ -13,10 +13,10 @@ export class MeasurePantController implements Repository {
     ) {}
     Create = (req: Request, res: Response) => {
         const { idToken } = req.body;
-        const [error, dto] = RegisterMeasurePantDto.create(req.body, idToken!);
-        if (error) return res.json({ error });
+        const [error, dto] = RegisterMeasurePantDto.create(req.body);
+        if (error) return res.status(400).json({ error });
         this.service
-            .registerMeasurePant(dto!)
+            .registerMeasurePant(dto!, +idToken)
             .then((measure) => res.json(measure))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };

@@ -3,6 +3,7 @@ import {
     CustomErrorImpl,
     RegisterMeasureShirtDto,
     Repository,
+    UpdateMeasureShirtDto,
 } from '../../../domain';
 import { MeasureShirtService } from '../../services/measure-shirt.service';
 
@@ -19,7 +20,7 @@ export class MeasureShirtController implements Repository {
         );
         if (error) return res.status(400).json({ message: error });
         this.measureShirtService
-            .registerMeasureShirt(registerDTO!)
+            .registerMeasureShirt(registerDTO!, +idToken!)
             .then((measure) => res.json(measure))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
@@ -38,6 +39,16 @@ export class MeasureShirtController implements Repository {
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
     UpdateById = (req: Request, res: Response) => {
-        throw new Error('Method not implemented.');
+        const { idToken } = req.body;
+        const { id } = req.params;
+        const [error, dto] = UpdateMeasureShirtDto.create({
+            id: +id,
+            ...req.body,
+        });
+        if (error) return res.status(400).json({ message: error });
+        this.measureShirtService
+            .updateMeasureShirt(dto!, +idToken!)
+            .then((measure) => res.json(measure))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
     };
 }
