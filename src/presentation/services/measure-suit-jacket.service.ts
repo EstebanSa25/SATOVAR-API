@@ -1,5 +1,10 @@
 import { prisma } from '../../data/prisma';
-import { CustomError, RegisterMeasureSuitJacketDto, Rol } from '../../domain';
+import {
+    CustomError,
+    RegisterMeasureSuitJacketDto,
+    Rol,
+    UpdateMeasureSuitJacketDto,
+} from '../../domain';
 import _ from 'lodash';
 export class MeasureSuitJacketService {
     constructor() {}
@@ -126,6 +131,44 @@ export class MeasureSuitJacketService {
         } catch (error) {
             if (error instanceof CustomError) throw error;
             return error;
+        }
+    }
+    async updateMeasureSuitJacket(
+        dto: UpdateMeasureSuitJacketDto,
+        tokenId: number
+    ) {
+        const userExist = await prisma.t_USUARIO.findUnique({
+            where: { CI_ID_USUARIO: +tokenId },
+        });
+        if (!userExist) throw CustomError.notFound('Usuario no encontrado');
+        if (userExist.CI_ID_ROL !== Rol.Admin)
+            throw CustomError.unauthorized(
+                'No tiene permisos para realizar esta acción'
+            );
+        try {
+            const measure = await prisma.t_SACO.findUnique({
+                where: { CI_ID_SACO: +dto.id },
+            });
+            if (!measure) throw CustomError.notFound('Medida no encontrada');
+            await prisma.t_SACO.update({
+                where: { CI_ID_SACO: measure.CI_ID_SACO },
+                data: {
+                    CI_BRAZO: +dto.brazo || measure.CI_BRAZO,
+                    CI_CADERA: +dto.cadera || measure.CI_CADERA,
+                    CI_ESPALDA: +dto.espalda || measure.CI_ESPALDA,
+                    CI_HOMBRO: +dto.hombro || measure.CI_HOMBRO,
+                    CI_L_MANGA: +dto.largoManga || measure.CI_L_MANGA,
+                    CI_L_TOTAL: +dto.largoTotal || measure.CI_L_TOTAL,
+                    CI_PECHO: +dto.pecho || measure.CI_PECHO,
+                    CI_PUNO: +dto.puno || measure.CI_PUNO,
+                    CI_CINTURA: +dto.cintura || measure.CI_CINTURA,
+                    CV_DETALLES: dto.detalles || measure.CV_DETALLES,
+                },
+            });
+            return { estado: true };
+        } catch (error) {
+            console.log(error);
+            if (error instanceof CustomError) throw error;
         }
     }
 }

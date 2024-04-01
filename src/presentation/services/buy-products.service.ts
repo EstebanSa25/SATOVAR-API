@@ -12,6 +12,7 @@ import { InvoiceEmailTemplate } from '../../helpers';
 export class BuyProductsService {
     constructor(private readonly emailService: EmailService) {}
     async BuyProducts(buyProductsDTO: BuyProductsDTO, idUsuario: number) {
+        console.log(buyProductsDTO);
         try {
             const arrayProductos = Array.from(buyProductsDTO.productos);
             console.log(arrayProductos);

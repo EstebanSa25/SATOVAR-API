@@ -3,6 +3,7 @@ import {
     CustomErrorImpl,
     RegisterMeasureSuitJacketDto,
     Repository,
+    UpdateMeasureSuitJacketDto,
 } from '../../../domain';
 import { MeasureSuitJacketService } from '../../services';
 
@@ -38,6 +39,16 @@ export class MeasureSuitJacketController implements Repository {
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
     UpdateById = (req: Request, res: Response) => {
-        throw new Error('Method not implemented.');
+        const { idToken } = req.body;
+        const { id } = req.params;
+        const [error, dto] = UpdateMeasureSuitJacketDto.create({
+            id: +id,
+            ...req.body,
+        });
+        if (error) return res.status(400).json({ message: error });
+        this.service
+            .updateMeasureSuitJacket(dto!, +idToken!)
+            .then((measure) => res.json(measure))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
     };
 }

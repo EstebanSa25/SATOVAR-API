@@ -1,5 +1,10 @@
 import { prisma } from '../../data/prisma';
-import { CustomError, RegisterMeasurePantDto, Rol } from '../../domain';
+import {
+    CustomError,
+    RegisterMeasurePantDto,
+    Rol,
+    UpdateMeasurePantDto,
+} from '../../domain';
 import _ from 'lodash';
 export class MeasurePantService {
     constructor() {}
@@ -128,6 +133,38 @@ export class MeasurePantService {
         } catch (error) {
             if (error instanceof CustomError) throw error;
             return error;
+        }
+    }
+    async updateMeasurePant(dto: UpdateMeasurePantDto, tokenId: number) {
+        const userExist = await prisma.t_USUARIO.findUnique({
+            where: { CI_ID_USUARIO: +tokenId },
+        });
+        if (!userExist) throw CustomError.notFound('Usuario no encontrado');
+        if (userExist.CI_ID_ROL !== Rol.Admin)
+            throw CustomError.unauthorized(
+                'No tiene permisos para realizar esta acción'
+            );
+        try {
+            const measure = await prisma.t_PANTALON.findUnique({
+                where: { CI_ID_PANTALON: +dto.id },
+            });
+            if (!measure) throw CustomError.notFound('Medida no encontrada');
+            await prisma.t_PANTALON.update({
+                where: { CI_ID_PANTALON: measure.CI_ID_PANTALON },
+                data: {
+                    CI_CADERA: +dto.cadera || measure.CI_CADERA,
+                    CI_CINTURA: +dto.cintura || measure.CI_CINTURA,
+                    CI_LARGO: +dto.largo || measure.CI_LARGO,
+                    CI_RODILLA: +dto.rodilla || measure.CI_RODILLA,
+                    CI_RUEDO: +dto.ruedo || measure.CI_RUEDO,
+                    CI_TIRO: +dto.tiro || measure.CI_TIRO,
+                    CV_DETALLES: dto.detalles || measure.CV_DETALLES,
+                },
+            });
+            return { estado: true };
+        } catch (error) {
+            console.log(error);
+            if (error instanceof CustomError) throw error;
         }
     }
 }

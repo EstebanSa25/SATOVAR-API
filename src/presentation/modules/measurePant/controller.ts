@@ -3,6 +3,7 @@ import {
     CustomErrorImpl,
     RegisterMeasurePantDto,
     Repository,
+    UpdateMeasurePantDto,
 } from '../../../domain';
 import { MeasurePantService } from '../../services';
 
@@ -35,6 +36,16 @@ export class MeasurePantController implements Repository {
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
     UpdateById = (req: Request, res: Response) => {
-        throw new Error('Method not implemented.');
+        const { idToken } = req.body;
+        const { id } = req.params;
+        const [error, dto] = UpdateMeasurePantDto.create({
+            id: +id,
+            ...req.body,
+        });
+        if (error) return res.status(400).json({ message: error });
+        this.service
+            .updateMeasurePant(dto!, +idToken!)
+            .then((measure) => res.json(measure))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
     };
 }

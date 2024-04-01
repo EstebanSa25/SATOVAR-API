@@ -5,3 +5,4 @@ export * from './register-measure-pant.dto';
 export * from './register-measure-suit-jacket.dto';
 export * from './update-measure-shirt.dto';
 export * from './update-meausure-pant.dto';
+export * from './update-measure-suit-jacket.dto';
