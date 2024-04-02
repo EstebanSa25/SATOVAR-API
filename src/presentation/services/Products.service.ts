@@ -199,6 +199,7 @@ export class ProductsService {
                     },
                 },
             });
+            console.log(updateProductDto.Tallas, updateProductDto.Id);
             if (updateProductDto.Tallas !== undefined) {
                 if (updateProductDto.Tallas.length > 0) {
                     productUpdate.T_PRODUCTO_X_TALLA.map(async (size) => {
@@ -206,7 +207,7 @@ export class ProductsService {
                             async (talla: SizeInterface) => {
                                 await prisma.t_PRODUCTO_X_TALLA.updateMany({
                                     where: {
-                                        CI_ID_PRODUCTO: updateProductDto.Id,
+                                        CI_ID_PRODUCTO: +updateProductDto.Id,
                                         CI_ID_TALLA: +talla.Id_talla,
                                     },
                                     data: {
