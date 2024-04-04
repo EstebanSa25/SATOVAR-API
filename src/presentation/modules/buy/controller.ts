@@ -24,10 +24,15 @@ export class BuyProductsController {
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
     UpdateStatusOrder = (req: Request, res: Response) => {
-        const { idToken } = req.body;
+        const { idToken, Estado } = req.body;
+        if (!Estado)
+            return res.status(400).json({ error: 'Estado es requerido' });
+        if (isNaN(Estado))
+            return res.status(400).json({ error: 'Estado debe ser un número' });
+
         const { id } = req.params;
         this.service
-            .UpdateStatusOrder(+idToken, +id)
+            .UpdateStatusOrder(+idToken, +id, +Estado)
             .then((order) => res.json(order))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };

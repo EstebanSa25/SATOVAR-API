@@ -96,6 +96,63 @@ export class AuthService {
             // throw CustomError.internalServer('Error creating user');
         }
     }
+    async createUserAdmin(registerUserDto: RegisterUserDto, Id_token: number) {
+        const admin = await prisma.t_USUARIO.findUnique({
+            where: { CI_ID_USUARIO: Id_token },
+        });
+        if (!admin) throw CustomError.internalServer('Usuario no encontrado');
+        if (admin.CI_ID_ROL != Rol.Admin)
+            throw CustomError.unauthorized(
+                'No tienes permisos para acceder a este recurso'
+            );
+        const exist = await prisma.t_USUARIO.findFirst({
+            where: {
+                OR: [
+                    { CV_CORREO: registerUserDto.Correo },
+                    { CV_CEDULA: registerUserDto.Cedula },
+                    { CV_TELEFONO: registerUserDto.Telefono },
+                ],
+            },
+        });
+        if (exist) {
+            if (exist.CV_CORREO === registerUserDto.Correo)
+                throw CustomError.badRequest(
+                    'El correo ya se encuentra en uso'
+                );
+            if (exist.CV_CEDULA === registerUserDto.Cedula)
+                throw CustomError.badRequest(
+                    'La cédula ya se encuentra registrada en el sistema'
+                );
+            if (exist.CV_TELEFONO === registerUserDto.Telefono)
+                throw CustomError.badRequest(
+                    'El numero de teléfono ya se encuentra registrado en el sistema'
+                );
+        }
+        const clave = bcryptAdapter.hash(registerUserDto.Clave);
+        try {
+            const user = await prisma.t_USUARIO.create({
+                data: {
+                    CV_NOMBRE: registerUserDto.Nombre,
+                    CV_APELLIDO1: registerUserDto.Apellido1,
+                    CV_APELLIDO2: registerUserDto.Apellido2,
+                    CV_CEDULA: registerUserDto.Cedula,
+                    CV_CORREO: registerUserDto.Correo,
+                    CV_DIRECCION: registerUserDto.Direccion,
+                    CV_TELEFONO: registerUserDto.Telefono,
+                    CV_CLAVE: clave,
+                    CI_ID_ROL: Rol.Admin,
+                    CB_ESTADO: true,
+                },
+            });
+            const { CV_CLAVE, ...userWithoutCLAVE } = user;
+            return {
+                userWithoutCLAVE,
+            };
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            return error;
+        }
+    }
     async deleteUser(deleteUserDto: DeleteUserDto) {
         const exist = await prisma.t_USUARIO.findFirst({
             where: { CI_ID_USUARIO: deleteUserDto.id },

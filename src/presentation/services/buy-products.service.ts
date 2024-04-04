@@ -199,7 +199,7 @@ export class BuyProductsService {
             if (error instanceof CustomError) throw error;
         }
     }
-    async UpdateStatusOrder(idUsuario: number, id: number) {
+    async UpdateStatusOrder(idUsuario: number, id: number, Estado: number) {
         try {
             const existUser = await prisma.t_USUARIO.findUnique({
                 where: {
@@ -229,10 +229,7 @@ export class BuyProductsService {
                     CI_ID_PEDIDO: id,
                 },
                 data: {
-                    CI_ID_ESTADO:
-                        order.CI_ID_ESTADO === Estado.Completo
-                            ? Estado.Pendiente
-                            : Estado.Completo,
+                    CI_ID_ESTADO: +Estado || order.CI_ID_ESTADO,
                 },
             });
             return productUpdate;

@@ -20,6 +20,12 @@ export class AuthRoutes {
         const service = new AuthService(emailService);
         const controller = new AuthController(service);
         router.post('/create', [check('Correo').isEmail()], controller.Create);
+        router.post(
+            '/create/admin',
+            [AuthMiddleware.validateJWT],
+            [check('Correo').isEmail()],
+            controller.CreateAdmin
+        );
         router.get(
             '/renew',
             [AuthMiddleware.validateJWT],

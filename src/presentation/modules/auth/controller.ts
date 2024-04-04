@@ -19,9 +19,18 @@ export class AuthController implements Repository {
     Create = (req: Request, res: Response) => {
         const [error, registerDTO] = RegisterUserDto.create(req.body);
         if (error) return res.status(400).json({ error });
-
         this.authService
             .createUser(registerDTO!)
+            .then((user) => res.json(user))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
+    };
+    CreateAdmin = (req: Request, res: Response) => {
+        const { idToken } = req.body;
+        const [error, registerDTO] = RegisterUserDto.create(req.body);
+        if (error) return res.status(400).json({ error });
+
+        this.authService
+            .createUserAdmin(registerDTO!, +idToken)
             .then((user) => res.json(user))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };

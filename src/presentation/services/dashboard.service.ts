@@ -41,7 +41,12 @@ export class DashboardService {
                     'No tienes permisos para acceder a este recurso'
                 );
             const ordersCount = await prisma.t_PEDIDO.count({
-                where: { CI_ID_ESTADO: OrderState.Pendiente },
+                where: {
+                    OR: [
+                        { CI_ID_ESTADO: OrderState.Pendiente },
+                        { CI_ID_ESTADO: OrderState.EnProceso },
+                    ],
+                },
             });
 
             return { CantidadPedidos: ordersCount };
