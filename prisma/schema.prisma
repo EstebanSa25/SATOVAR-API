@@ -61,14 +61,16 @@ model T_COMPRA {
 }
 
 model T_DETALLE_COMPRA {
-  CI_ID_DETALLE_COMPRA Int        @id(map: "PK__T_DETALL__0117900D2185568E") @default(autoincrement())
+  CI_ID_DETALLE_COMPRA Int                @id(map: "PK__T_DETALL__0117900D2185568E") @default(autoincrement())
   CI_ID_COMPRA         Int
   CI_ID_PRODUCTO       Int
   CI_CANTIDAD          Int
-  CF_FECHA_ENTREGA     DateTime   @db.Date
-  CD_PRECIO            Decimal    @db.Decimal(10, 2)
-  T_COMPRA             T_COMPRA   @relation(fields: [CI_ID_COMPRA], references: [CI_ID_COMPRA], onUpdate: NoAction, map: "FK_DETALLE_COMPRA_COMPRA")
-  T_PRODUCTO           T_PRODUCTO @relation(fields: [CI_ID_PRODUCTO], references: [CI_ID_PRODUCTO], onUpdate: NoAction, map: "FK_DETALLE_COMPRA_PRODUCTO")
+  CF_FECHA_ENTREGA     DateTime           @db.Date
+  CD_PRECIO            Decimal            @db.Decimal(10, 2)
+  CI_ID_PROD_X_TALLA   Int
+  T_COMPRA             T_COMPRA           @relation(fields: [CI_ID_COMPRA], references: [CI_ID_COMPRA], onUpdate: NoAction, map: "FK_DETALLE_COMPRA_COMPRA")
+  T_PRODUCTO           T_PRODUCTO         @relation(fields: [CI_ID_PRODUCTO], references: [CI_ID_PRODUCTO], onUpdate: NoAction, map: "FK_DETALLE_COMPRA_PRODUCTO")
+  T_PRODUCTO_X_TALLA   T_PRODUCTO_X_TALLA @relation(fields: [CI_ID_PROD_X_TALLA], references: [CI_ID_PROD_X_TALLA], onUpdate: NoAction, map: "FK_DETALLE_TALLA")
 }
 
 model T_ESTILO {
@@ -116,12 +118,13 @@ model T_PRODUCTO {
 }
 
 model T_PRODUCTO_X_TALLA {
-  CI_ID_PROD_X_TALLA Int        @id(map: "PK__T_PRODUC__EF0BA993FCA4E5A0") @default(autoincrement())
+  CI_ID_PROD_X_TALLA Int                @id(map: "PK__T_PRODUC__EF0BA993FCA4E5A0") @default(autoincrement())
   CI_ID_TALLA        Int
   CI_ID_PRODUCTO     Int
   CI_CANTIDAD        Int
-  T_PRODUCTO         T_PRODUCTO @relation(fields: [CI_ID_PRODUCTO], references: [CI_ID_PRODUCTO], onUpdate: NoAction, map: "FK_PROD_X_TALLA_PRODUCTO")
-  T_TALLA            T_TALLA    @relation(fields: [CI_ID_TALLA], references: [CI_ID_TALLA], onUpdate: NoAction, map: "FK_PROD_X_TALLA_TALLA")
+  T_DETALLE_COMPRA   T_DETALLE_COMPRA[]
+  T_PRODUCTO         T_PRODUCTO         @relation(fields: [CI_ID_PRODUCTO], references: [CI_ID_PRODUCTO], onUpdate: NoAction, map: "FK_PROD_X_TALLA_PRODUCTO")
+  T_TALLA            T_TALLA            @relation(fields: [CI_ID_TALLA], references: [CI_ID_TALLA], onUpdate: NoAction, map: "FK_PROD_X_TALLA_TALLA")
 }
 
 model T_ROL {

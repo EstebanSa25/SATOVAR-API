@@ -1,4 +1,4 @@
-import { forEach } from 'lodash';
+import { forEach, includes } from 'lodash';
 import { prisma } from '../../data/prisma';
 import {
     BuyProductsDTO,
@@ -12,10 +12,8 @@ import { InvoiceEmailTemplate } from '../../helpers';
 export class BuyProductsService {
     constructor(private readonly emailService: EmailService) {}
     async BuyProducts(buyProductsDTO: BuyProductsDTO, idUsuario: number) {
-        console.log(buyProductsDTO);
         try {
             const arrayProductos = Array.from(buyProductsDTO.productos);
-            console.log(arrayProductos);
             const products = await Promise.all(
                 arrayProductos.map(async (product: any) => {
                     const productExist = await prisma.t_PRODUCTO.findUnique({
@@ -67,7 +65,7 @@ export class BuyProductsService {
             const buy = await prisma.t_COMPRA.create({
                 data: {
                     CI_ID_USUARIO: idUsuario,
-                    CF_FECHA_PAGO: buyProductsDTO.fecha_pago,
+                    CF_FECHA_PAGO: new Date(Date.now()),
                     CD_SUBTOTAL: buyProductsDTO.subtotal,
                     CD_IMPUESTOS: buyProductsDTO.impuestos,
                     CD_DESCUENTOS: buyProductsDTO.descuentos,
@@ -86,7 +84,11 @@ export class BuyProductsService {
             if (!buy) throw CustomError.badRequest('Error al crear la compra');
             await Promise.all(
                 forEach(products, async (product) => {
-                    await this.BuyProductsDetails(buy.CI_ID_COMPRA, product);
+                    await this.BuyProductsDetails(
+                        +buy.CI_ID_COMPRA,
+                        product,
+                        new Date(buyProductsDTO.fecha_pago)
+                    );
                 })
             );
             const user = await prisma.t_USUARIO.findUnique({
@@ -107,7 +109,7 @@ export class BuyProductsService {
                     direccion: user.CV_DIRECCION,
                     correo: user.CV_CORREO,
                 },
-                fecha: buy.CF_FECHA_PAGO.toISOString().split('T')[0],
+                fecha: new Date(Date.now()).toISOString().split('T')[0],
                 productos: products,
                 subtotal: +buy.CD_SUBTOTAL,
                 impuestos: +buy.CD_IMPUESTOS,
@@ -131,19 +133,31 @@ export class BuyProductsService {
             return error;
         }
     }
-    async BuyProductsDetails(idCompra: number, product: ProductEntityBuy) {
+    async BuyProductsDetails(
+        idCompra: number,
+        product: ProductEntityBuy,
+        fechaEntrega: Date | string
+    ) {
         try {
+            const productxtalla = await prisma.t_PRODUCTO_X_TALLA.findFirst({
+                where: {
+                    CI_ID_PRODUCTO: product.id,
+                    CI_ID_TALLA: +product.talla,
+                },
+            });
+            if (!productxtalla)
+                throw CustomError.badRequest('Producto no encontrado');
             const detalle = await prisma.t_DETALLE_COMPRA.create({
                 data: {
                     CI_ID_COMPRA: idCompra,
                     CI_ID_PRODUCTO: product.id,
                     CI_CANTIDAD: product.cantidad,
                     CD_PRECIO: product.precio,
-                    CF_FECHA_ENTREGA: new Date(
-                        Date.now() + 5 * 24 * 60 * 60 * 1000
-                    ),
+                    CF_FECHA_ENTREGA: new Date(fechaEntrega),
+                    CI_ID_PROD_X_TALLA: productxtalla.CI_ID_PROD_X_TALLA,
                 },
             });
+
             if (!detalle)
                 throw CustomError.internalServer(
                     'Error al crear el detalle de la compra'
@@ -278,6 +292,43 @@ export class BuyProductsService {
                 },
             });
             return orders;
+        } catch (error) {
+            console.log(error);
+            if (error instanceof CustomError) throw error;
+        }
+    }
+    async GetOrder(id: number, idToken: number) {
+        try {
+            const admin = await prisma.t_USUARIO.findUnique({
+                where: { CI_ID_USUARIO: idToken },
+                select: { CI_ID_ROL: true },
+            });
+            if (!admin || admin.CI_ID_ROL !== Rol.Admin)
+                throw CustomError.unauthorized(
+                    'No tienes permisos para realizar esta acción'
+                );
+
+            const order = await prisma.t_PEDIDO.findUnique({
+                where: { CI_ID_PEDIDO: id },
+                select: {
+                    T_COMPRA: {
+                        select: {
+                            T_USUARIO: true,
+                            T_DETALLE_COMPRA: {
+                                select: {
+                                    T_PRODUCTO: {
+                                        select: {
+                                            CV_NOMBRE: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+            if (!order) throw CustomError.notFound('Pedido no encontrado');
+            return order;
         } catch (error) {
             console.log(error);
             if (error instanceof CustomError) throw error;

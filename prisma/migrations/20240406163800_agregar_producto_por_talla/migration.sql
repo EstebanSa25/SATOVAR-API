@@ -1,0 +1,63 @@
+/*
+  Warnings:
+
+  - You are about to drop the column `CI_CANTIDAD` on the `T_PRODUCTO` table. All the data in the column will be lost.
+  - Added the required column `CI_ID_PROD_X_TALLA` to the `T_DETALLE_COMPRA` table without a default value. This is not possible if the table is not empty.
+
+*/
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[T_DETALLE_COMPRA] ADD [CI_ID_PROD_X_TALLA] INT NOT NULL;
+
+-- AlterTable
+ALTER TABLE [dbo].[T_PRODUCTO] DROP COLUMN [CI_CANTIDAD];
+
+-- CreateTable
+CREATE TABLE [dbo].[sysdiagrams] (
+    [name] NVARCHAR(128) NOT NULL,
+    [principal_id] INT NOT NULL,
+    [diagram_id] INT NOT NULL IDENTITY(1,1),
+    [version] INT,
+    [definition] VARBINARY(max),
+    CONSTRAINT [PK__sysdiagr__C2B05B610300E976] PRIMARY KEY CLUSTERED ([diagram_id]),
+    CONSTRAINT [UK_principal_name] UNIQUE NONCLUSTERED ([principal_id],[name])
+);
+
+-- CreateTable
+CREATE TABLE [dbo].[T_ESTADO] (
+    [CI_ID_ESTADO] INT NOT NULL IDENTITY(1,1),
+    [CV_DESCRIPCION] VARCHAR(80),
+    [CB_ESTADO] BIT,
+    CONSTRAINT [PK__T_ESTADO__2053C6A96ED8B320] PRIMARY KEY CLUSTERED ([CI_ID_ESTADO])
+);
+
+-- CreateTable
+CREATE TABLE [dbo].[T_PEDIDO] (
+    [CI_ID_PEDIDO] INT NOT NULL IDENTITY(1,1),
+    [CI_ID_ESTADO] INT,
+    [CI_ID_COMPRA] INT,
+    CONSTRAINT [PK__T_PEDIDO__839197564C8A2115] PRIMARY KEY CLUSTERED ([CI_ID_PEDIDO]),
+    CONSTRAINT [UQ__T_PEDIDO__7F520FBA7D3A795E] UNIQUE NONCLUSTERED ([CI_ID_COMPRA])
+);
+
+-- AddForeignKey
+ALTER TABLE [dbo].[T_PEDIDO] ADD CONSTRAINT [FK_COMPRA_PEDIDO] FOREIGN KEY ([CI_ID_COMPRA]) REFERENCES [dbo].[T_COMPRA]([CI_ID_COMPRA]) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE [dbo].[T_PEDIDO] ADD CONSTRAINT [FK_ESTADO_PEDIDO] FOREIGN KEY ([CI_ID_ESTADO]) REFERENCES [dbo].[T_ESTADO]([CI_ID_ESTADO]) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

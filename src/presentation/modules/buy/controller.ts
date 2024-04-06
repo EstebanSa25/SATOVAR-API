@@ -36,7 +36,14 @@ export class BuyProductsController {
             .then((order) => res.json(order))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
-
+    GetOrder = (req: Request, res: Response) => {
+        const { idToken } = req.body;
+        const { id } = req.params;
+        this.service
+            .GetOrder(+id, +idToken)
+            .then((orders) => res.json(orders))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
+    };
     GetOrderById = (req: Request, res: Response) => {
         const { idToken } = req.body;
         const { id } = req.params;

@@ -11,12 +11,18 @@ export class BuyProductsDTO {
         public readonly productos: string
     ) {}
     static create(object: { [key: string]: any }): [string?, BuyProductsDTO?] {
-        const { subtotal, impuestos, descuentos, total, productos } = object;
+        const {
+            subtotal,
+            impuestos,
+            descuentos,
+            total,
+            productos,
+            fecha_pago,
+        } = object;
         if (!subtotal) return ['subtotal es requerido'];
         if (isNaN(subtotal)) return ['subtotal debe ser un número'];
         if (!impuestos) return ['impuestos es requerido'];
         if (isNaN(impuestos)) return ['impuestos debe ser un número'];
-        let fecha = new Date(Date.now());
         if (!total) return ['total es requerido'];
         if (isNaN(total)) return ['total debe ser un número'];
         if (!productos) return ['productos es requerido'];
@@ -27,7 +33,7 @@ export class BuyProductsDTO {
                 +subtotal,
                 +impuestos,
                 +descuentos,
-                fecha,
+                fecha_pago,
                 +total,
                 productos
             ),

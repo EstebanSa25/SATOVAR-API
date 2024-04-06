@@ -34,10 +34,11 @@ export class ProductsService {
             });
             const sizes = await Promise.all(
                 registerProductDto.Tallas.map(async (talla: SizeInterface) => {
-                    const existTalla = await prisma.t_TALLA.findFirst({
-                        where: { CI_ID_TALLA: talla.Id_talla },
+                    const existTalla = await prisma.t_TALLA.findUnique({
+                        where: { CI_ID_TALLA: +talla.Id_talla },
                     });
-                    if (!existTalla)
+                    console.log({ existTalla });
+                    if (!existTalla?.CI_ID_TALLA)
                         throw CustomError.badRequest('La talla no existe');
                     await prisma.t_PRODUCTO_X_TALLA.create({
                         data: {
