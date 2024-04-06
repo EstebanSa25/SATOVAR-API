@@ -311,14 +311,46 @@ export class BuyProductsService {
             const order = await prisma.t_PEDIDO.findUnique({
                 where: { CI_ID_PEDIDO: id },
                 select: {
+                    CI_ID_PEDIDO: true,
+                    T_ESTADO: {
+                        select: {
+                            CV_DESCRIPCION: true,
+                        },
+                    },
                     T_COMPRA: {
                         select: {
-                            T_USUARIO: true,
+                            CF_FECHA_PAGO: true,
+                            CD_SUBTOTAL: true,
+                            CD_IMPUESTOS: true,
+                            CD_TOTAL: true,
+                            T_USUARIO: {
+                                select: {
+                                    CV_NOMBRE: true,
+                                    CV_APELLIDO1: true,
+                                    CV_APELLIDO2: true,
+                                    CV_DIRECCION: true,
+                                    CV_CORREO: true,
+                                    CV_TELEFONO: true,
+                                    CV_CEDULA: true,
+                                },
+                            },
                             T_DETALLE_COMPRA: {
                                 select: {
+                                    CF_FECHA_ENTREGA: true,
+                                    CI_CANTIDAD: true,
+                                    T_PRODUCTO_X_TALLA: {
+                                        select: {
+                                            T_TALLA: {
+                                                select: {
+                                                    CV_TALLA: true,
+                                                },
+                                            },
+                                        },
+                                    },
                                     T_PRODUCTO: {
                                         select: {
                                             CV_NOMBRE: true,
+                                            CD_PRECIO: true,
                                         },
                                     },
                                 },
