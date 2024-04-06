@@ -14,6 +14,7 @@ export class FabricRoutes {
         router.get('/', controller.FindAll);
         router.post('/create', controller.Create);
         router.put('/:id', controller.UpdateById);
+        router.put('/state/:id', controller.UpdateStateFabric);
         router.delete('/delete/:id', controller.DeleteById);
         router.get('/:id', controller.FindById);
         return router;

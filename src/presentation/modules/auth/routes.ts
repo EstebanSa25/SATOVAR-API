@@ -31,12 +31,21 @@ export class AuthRoutes {
             [AuthMiddleware.validateJWT],
             controller.RevalidateToken
         );
-        router.delete('/delete/:id', controller.DeleteById);
+        router.delete(
+            '/delete/:id',
+            [AuthMiddleware.validateJWT],
+            controller.DeleteById
+        );
         router.get('/validate-email/:token', controller.validateEmail);
         router.get('/', controller.FindAll);
         router.post('/login', controller.login);
         router.get('/:id', controller.FindById);
-        router.put('/:id', controller.UpdateById);
+        router.put('/:id', [AuthMiddleware.validateJWT], controller.UpdateById);
+        router.put(
+            '/state/:id',
+            [AuthMiddleware.validateJWT],
+            controller.UpdateStateUser
+        );
         //#endregion
         return router;
     }

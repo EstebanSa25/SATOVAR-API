@@ -36,10 +36,11 @@ export class AuthController implements Repository {
     };
     DeleteById = (req: Request, res: Response) => {
         const id = req.params.id;
+        const { idToken } = req.body;
         const [error, deleteDTO] = DeleteUserDto.create(+id);
         if (error) return res.status(400).json({ error });
         this.authService
-            .deleteUser(deleteDTO!)
+            .deleteUser(deleteDTO!, +idToken)
             .then((user) => res.json(user))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
@@ -58,13 +59,14 @@ export class AuthController implements Repository {
     };
     UpdateById = (req: Request, res: Response) => {
         const { id } = req.params;
+        const { idToken } = req.body;
         const [error, updateDTO] = UpdateUserDto.create({
             ...req.body,
             Id: +id,
         });
         if (error) return res.status(400).json({ error });
         this.authService
-            .updateUser(updateDTO!)
+            .updateUser(updateDTO!, +idToken)
             .then((user) => res.json(user))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
@@ -88,6 +90,18 @@ export class AuthController implements Repository {
         const { idToken } = req.body;
         this.authService
             .revalidateToken(idToken)
+            .then((user) => res.json(user))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
+    };
+    UpdateStateUser = (req: Request, res: Response) => {
+        const { idToken } = req.body;
+        const { id } = req.params;
+        if (!id)
+            return res
+                .status(400)
+                .json({ error: 'El id del usuario es requerido' });
+        this.authService
+            .UpdateStateUser(+id, +idToken)
             .then((user) => res.json(user))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };

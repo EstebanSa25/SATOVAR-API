@@ -31,6 +31,34 @@ export class AuthService {
             throw CustomError.internalServer('Error getting user');
         }
     }
+    async UpdateStateUser(id: number, tokenId: number) {
+        try {
+            const userAdmin = await prisma.t_USUARIO.findUnique({
+                where: { CI_ID_USUARIO: tokenId },
+            });
+            if (!userAdmin || userAdmin.CI_ID_ROL != Rol.Admin)
+                throw CustomError.unauthorized(
+                    'No tienes permisos para acceder a este recurso'
+                );
+            const user = await prisma.t_USUARIO.findUnique({
+                where: { CI_ID_USUARIO: id },
+            });
+            if (!user) throw CustomError.notFound('Usuario no encontrado');
+            if (user.CI_ID_USUARIO === tokenId)
+                throw CustomError.unauthorized(
+                    'No puedes desactivar tu cuenta'
+                );
+            const userUpdated = await prisma.t_USUARIO.update({
+                where: { CI_ID_USUARIO: id },
+                data: { CB_ESTADO: !user.CB_ESTADO },
+            });
+            const { CV_CLAVE, ...userWithoutCLAVE } = userUpdated;
+            return { userWithoutCLAVE };
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            console.log(error);
+        }
+    }
     async getAllUsers() {
         try {
             const users = await prisma.t_USUARIO.findMany();
@@ -153,7 +181,14 @@ export class AuthService {
             return error;
         }
     }
-    async deleteUser(deleteUserDto: DeleteUserDto) {
+    async deleteUser(deleteUserDto: DeleteUserDto, idToken: number) {
+        const userAdmin = await prisma.t_USUARIO.findUnique({
+            where: { CI_ID_USUARIO: idToken },
+        });
+        if (!userAdmin || userAdmin.CI_ID_ROL != Rol.Admin)
+            throw CustomError.unauthorized(
+                'No tienes permisos para acceder a este recurso'
+            );
         const exist = await prisma.t_USUARIO.findFirst({
             where: { CI_ID_USUARIO: deleteUserDto.id },
         });
@@ -195,22 +230,41 @@ export class AuthService {
             token,
         };
     }
-    async updateUser(updateUserDto: UpdateUserDto) {
+    async updateUser(updateUserDto: UpdateUserDto, idToken: number) {
+        const userAdmin = await prisma.t_USUARIO.findUnique({
+            where: { CI_ID_USUARIO: idToken },
+        });
+        if (!userAdmin || userAdmin.CI_ID_ROL != Rol.Admin)
+            throw CustomError.unauthorized(
+                'No tienes permisos para acceder a este recurso'
+            );
         const user = await prisma.t_USUARIO.findUnique({
             where: { CI_ID_USUARIO: updateUserDto.Id },
         });
         if (!user) throw CustomError.notFound('User not found');
+        if (updateUserDto.Rol) {
+            if (
+                updateUserDto.Rol !== Rol.Admin &&
+                updateUserDto.Rol !== Rol.Cliente
+            )
+                throw CustomError.badRequest('Rol no valido');
+        }
+        let clave = updateUserDto.Clave;
+        if (updateUserDto.Clave) {
+            clave = bcryptAdapter.hash(updateUserDto.Clave);
+        }
         const userUpdated = await prisma.t_USUARIO.update({
             where: { CI_ID_USUARIO: updateUserDto.Id },
             data: {
-                CV_NOMBRE: updateUserDto.Nombre,
-                CV_APELLIDO1: updateUserDto.Apellido1,
-                CV_APELLIDO2: updateUserDto.Apellido2,
-                CV_CEDULA: updateUserDto.Cedula,
-                CV_CORREO: updateUserDto.Correo,
-                CV_DIRECCION: updateUserDto.Direccion,
-                CV_TELEFONO: updateUserDto.Telefono,
-                CI_ID_ROL: Rol.Cliente,
+                CV_NOMBRE: updateUserDto.Nombre || user.CV_NOMBRE,
+                CV_APELLIDO1: updateUserDto.Apellido1 || user.CV_APELLIDO1,
+                CV_APELLIDO2: updateUserDto.Apellido2 || user.CV_APELLIDO2,
+                CV_CEDULA: updateUserDto.Cedula || user.CV_CEDULA,
+                CV_CORREO: updateUserDto.Correo || user.CV_CORREO,
+                CV_DIRECCION: updateUserDto.Direccion || user.CV_DIRECCION,
+                CV_TELEFONO: updateUserDto.Telefono || user.CV_TELEFONO,
+                CI_ID_ROL: updateUserDto.Rol || user.CI_ID_ROL,
+                CV_CLAVE: clave || user.CV_CLAVE,
             },
         });
         const { CV_CLAVE, ...userWithoutCLAVE } = userUpdated;

@@ -62,4 +62,12 @@ export class FabricController implements Repository {
             .then((fabric) => res.json(fabric))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
+    UpdateStateFabric = (req: Request, res: Response) => {
+        const { id } = req.params;
+        const { idToken } = req.body;
+        this.service
+            .UpdateFabricState(+id, +idToken)
+            .then((fabric) => res.json(fabric))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
+    };
 }

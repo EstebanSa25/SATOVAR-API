@@ -1,3 +1,4 @@
+import { isBoolean } from 'lodash';
 import { prisma } from '../../data/prisma';
 import { CustomError, Rol } from '../../domain';
 import {
@@ -11,7 +12,8 @@ export class FabricService {
         const existFabric = await prisma.t_TELA.findFirst({
             where: { CV_NOMBRE: createFabricDTO.Nombre },
         });
-        if (existFabric) throw 'La tela ya existe, modifiquela';
+        if (existFabric)
+            throw CustomError.badRequest('La tela ya existe, modifiquela');
         try {
             console.log('Ingreso al try');
             const fabric = await prisma.t_TELA.create({
@@ -24,8 +26,8 @@ export class FabricService {
             });
             return { fabric };
         } catch (error) {
-            console.error('Error al crear la tela:', error);
-            throw CustomError.internalServer('Error creando tela');
+            if (error instanceof CustomError) throw error;
+            console.log(error);
         }
     };
 
@@ -57,13 +59,7 @@ export class FabricService {
                 throw CustomError.unauthorized(
                     'No tienes permisos para realizar esta acciÃ³n'
                 );
-            const fabrics = await prisma.t_TELA.findMany({
-                where: { CB_ESTADO: true },
-                select: {
-                    CI_ID_TELA: true,
-                    CV_NOMBRE: true,
-                },
-            });
+            const fabrics = await prisma.t_TELA.findMany();
             return fabrics;
         } catch (error) {
             console.log(error);
@@ -84,23 +80,50 @@ export class FabricService {
         }
     }
 
+    async UpdateFabricState(id: number, tokenId: number) {
+        try {
+            const userAdmin = await prisma.t_USUARIO.findUnique({
+                where: { CI_ID_USUARIO: tokenId },
+            });
+
+            if (!userAdmin || userAdmin.CI_ID_ROL !== Rol.Admin)
+                throw CustomError.unauthorized(
+                    'No tienes permisos para realizar esta accion'
+                );
+            const fabric = await prisma.t_TELA.findUnique({
+                where: { CI_ID_TELA: id },
+            });
+            if (!fabric) throw CustomError.notFound('Tela no encontrada');
+            const fabricUpdated = await prisma.t_TELA.update({
+                where: { CI_ID_TELA: id },
+                data: { CB_ESTADO: !fabric.CB_ESTADO },
+            });
+            return fabricUpdated;
+        } catch (error) {
+            console.log(error);
+            if (error instanceof CustomError) throw error;
+        }
+    }
     async UpdateFabric(updateFabricDto: UpdateFabricDTO) {
         const fabric = await prisma.t_TELA.findUnique({
             where: { CI_ID_TELA: updateFabricDto.Id },
         });
+        console.log(updateFabricDto.Estado);
+        if (typeof Boolean(updateFabricDto.Estado) !== 'boolean')
+            throw CustomError.badRequest('Estado debe ser un booleano');
         try {
             if (!fabric) throw CustomError.notFound('Fabric not found');
             const fabricUpdated = await prisma.t_TELA.update({
                 where: { CI_ID_TELA: updateFabricDto.Id },
                 data: {
-                    CV_NOMBRE: updateFabricDto.Nombre,
-                    CV_FOTO: updateFabricDto.Foto,
-                    CD_PRECIO: updateFabricDto.Precio,
-                    CB_ESTADO: updateFabricDto.Estado,
+                    CV_NOMBRE: updateFabricDto.Nombre || fabric.CV_NOMBRE,
+                    CV_FOTO: updateFabricDto.Foto || fabric.CV_FOTO,
+                    CD_PRECIO: updateFabricDto.Precio || fabric.CD_PRECIO,
                 },
             });
             return fabricUpdated;
         } catch (error) {
+            console.log(error);
             if (error instanceof CustomError) throw error;
         }
     }

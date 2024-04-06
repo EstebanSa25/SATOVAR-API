@@ -8,7 +8,8 @@ export class UpdateUserDto {
         public readonly Correo?: string,
         public readonly Direccion?: string,
         public readonly Telefono?: string,
-        public readonly Clave?: string
+        public readonly Clave?: string,
+        public readonly Rol?: number
     ) {}
     static create(object: { [key: string]: any }): [string?, UpdateUserDto?] {
         const {
@@ -21,6 +22,7 @@ export class UpdateUserDto {
             Direccion,
             Telefono,
             Clave,
+            Rol,
         } = object;
 
         if (!Id) return ['El id es requerido'];
@@ -37,7 +39,8 @@ export class UpdateUserDto {
                 Correo,
                 Direccion,
                 Telefono,
-                Clave
+                Clave,
+                +Rol
             ),
         ];
     }
