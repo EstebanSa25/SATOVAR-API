@@ -39,8 +39,12 @@ export class RegisterUserDto {
         if (!Correo) return ['Correo electronico es requerido'];
         if (!Direccion) return ['La direccion es requerida'];
         if (!Telefono) return ['El numero de telefono es requerido'];
+        if (isNaN(+Telefono)) return ['El telefono ser un numero'];
         if (!Clave) return ['La clave es requerida'];
-
+        if (Clave.toString().length < 9)
+            return ['La clave debe tener al menos 9 digitos'];
+        if (!Clave.includes('$' || '#' || '@' || '!' || '%' || '&'))
+            return ['La clave debe tener al menos un caracter especial'];
         return [
             undefined,
             new RegisterUserDto(

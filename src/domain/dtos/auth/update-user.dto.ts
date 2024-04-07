@@ -38,6 +38,19 @@ export class UpdateUserDto {
         if (Rol) {
             if (isNaN(Rol)) return ['El rol debe ser un numero'];
         }
+        if (Cedula) if (isNaN(+Cedula)) return ['La cedula debe ser un numero'];
+        if (Cedula)
+            if (Cedula.toString().length < 9)
+                return ['La cedula debe tener al menos 9 digitos'];
+        if (Telefono)
+            if (isNaN(+Telefono)) return ['El telefono ser un numero'];
+        if (Clave) if (!Clave) return ['La clave es requerida'];
+        if (Clave)
+            if (Clave.toString().length < 9)
+                return ['La clave debe tener al menos 9 digitos'];
+        if (Clave)
+            if (!Clave.includes('$' || '#' || '@' || '!' || '%' || '&'))
+                return ['La clave debe tener al menos un caracter especial'];
         return [
             undefined,
             new UpdateUserDto(

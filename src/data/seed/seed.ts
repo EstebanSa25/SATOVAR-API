@@ -150,12 +150,12 @@ const InsertStyle = async () => {
     main();
 })();
 
-function main() {
-    InsertRole();
-    InsertState();
-    InsertSize();
-    InsertCatalog();
-    InsertCategory();
-    InsertAdmin();
-    InsertStyle();
+async function main() {
+    await InsertRole();
+    await InsertState();
+    await InsertSize();
+    await InsertCatalog();
+    await InsertCategory();
+    await InsertStyle();
+    await InsertAdmin();
 }

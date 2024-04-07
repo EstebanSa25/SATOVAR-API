@@ -241,9 +241,12 @@ export class AuthService {
                 'No tienes permisos para acceder a este recurso'
             );
         const user = await prisma.t_USUARIO.findUnique({
-            where: { CI_ID_USUARIO: updateUserDto.Id },
+            where: {
+                CI_ID_USUARIO: +updateUserDto.Id,
+            },
         });
         if (!user) throw CustomError.notFound('User not found');
+
         if (updateUserDto.Rol) {
             if (
                 +updateUserDto.Rol &&
