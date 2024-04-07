@@ -9,6 +9,7 @@ import {
 import { AuthService } from '../../services/auth.service';
 import { CustomErrorImpl } from '../../../domain/errors/custom.error.impl';
 import { validateEmail } from '../../../helpers/validateEmail.helper';
+import { decryptData } from '../../../config';
 
 export class AuthController implements Repository {
     constructor(
@@ -62,7 +63,7 @@ export class AuthController implements Repository {
         const { idToken } = req.body;
         const [error, updateDTO] = UpdateUserDto.create({
             ...req.body,
-            Id: +id,
+            IdEncrypted: id,
         });
         if (error) return res.status(400).json({ error });
         this.authService
@@ -100,8 +101,15 @@ export class AuthController implements Repository {
             return res
                 .status(400)
                 .json({ error: 'El id del usuario es requerido' });
+
+        const decipherId = decryptData<any>(id.replace(/-/g, '/'));
+        const { Id } = decipherId.data;
+        if (!Id)
+            return res
+                .status(400)
+                .json({ error: 'El id del usuario es requerido' });
         this.authService
-            .UpdateStateUser(+id, +idToken)
+            .UpdateStateUser(+Id, +idToken)
             .then((user) => res.json(user))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };

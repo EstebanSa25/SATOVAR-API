@@ -1,5 +1,6 @@
 import { isDate } from 'lodash';
-import { ProductEntityBuy } from '../../interfaces';
+import { BuyDtoInterface, ProductEntityBuy } from '../../interfaces';
+import { decryptData } from '../../../config';
 
 export class BuyProductsDTO {
     private constructor(
@@ -11,14 +12,21 @@ export class BuyProductsDTO {
         public readonly productos: string
     ) {}
     static create(object: { [key: string]: any }): [string?, BuyProductsDTO?] {
+        const { encryptedData } = object;
+        if (!encryptedData) return ['No se ha enviado la data'];
+        const decipher = decryptData<BuyDtoInterface>(encryptedData);
+        let data: BuyDtoInterface;
+        data = decipher.data || ({} as BuyDtoInterface);
+        console.log(data);
         const {
             subtotal,
             impuestos,
             descuentos,
+            fecha_pago,
             total,
             productos,
-            fecha_pago,
-        } = object;
+        } = data;
+
         if (!subtotal) return ['subtotal es requerido'];
         if (isNaN(subtotal)) return ['subtotal debe ser un número'];
         if (!impuestos) return ['impuestos es requerido'];

@@ -6,6 +6,7 @@ import {
     DeleteFabricDto,
     UpdateFabricDTO,
 } from '../../../domain/dtos/fabric';
+import { decryptData } from '../../../config';
 
 export class FabricController implements Repository {
     constructor(
@@ -54,7 +55,7 @@ export class FabricController implements Repository {
         const { id } = req.params;
         const [error, updatefabricDTO] = UpdateFabricDTO.create({
             ...req.body,
-            Id: +id,
+            IdEncrypted: id,
         });
         if (error) return res.status(400).json({ error });
         this.service
@@ -64,9 +65,12 @@ export class FabricController implements Repository {
     };
     UpdateStateFabric = (req: Request, res: Response) => {
         const { id } = req.params;
+        const decipherId = decryptData<any>(id.replace(/-/g, '/'));
+        const { Id } = decipherId.data;
+        if (!Id) return res.status(400).json({ error: 'El id es requerido' });
         const { idToken } = req.body;
         this.service
-            .UpdateFabricState(+id, +idToken)
+            .UpdateFabricState(+Id, +idToken)
             .then((fabric) => res.json(fabric))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };

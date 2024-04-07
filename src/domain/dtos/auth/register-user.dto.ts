@@ -1,3 +1,5 @@
+import { decryptData } from '../../../config';
+import { RegisterUserDtoInterface } from '../../interfaces';
 export class RegisterUserDto {
     private constructor(
         public readonly Nombre: string,
@@ -10,6 +12,11 @@ export class RegisterUserDto {
         public readonly Clave: string
     ) {}
     static create(object: { [key: string]: any }): [string?, RegisterUserDto?] {
+        const { encryptedData } = object;
+        if (!encryptedData) return ['No se ha enviado la data'];
+        const decipher = decryptData<RegisterUserDtoInterface>(encryptedData);
+        let data: RegisterUserDtoInterface;
+        data = decipher.data || ({} as RegisterUserDtoInterface);
         const {
             Nombre,
             Apellido1,
@@ -19,13 +26,13 @@ export class RegisterUserDto {
             Direccion,
             Telefono,
             Clave,
-        } = object;
+        } = data;
 
         if (!Nombre) return ['El nombre es requerido'];
         if (!Apellido1) return ['El primer apellido es requerido'];
         if (!Apellido2) return ['El segundo apellido es requerido'];
         if (!Cedula) return ['La cedula es requerida'];
-        if (isNaN(Cedula)) return ['La cedula debe ser un numero'];
+        if (isNaN(+Cedula)) return ['La cedula debe ser un numero'];
         if (Cedula.toString().length < 9)
             return ['La cedula debe tener al menos 9 digitos'];
 
@@ -40,7 +47,7 @@ export class RegisterUserDto {
                 Nombre,
                 Apellido1,
                 Apellido2,
-                Cedula,
+                Cedula.toString(),
                 Correo,
                 Direccion,
                 Telefono,

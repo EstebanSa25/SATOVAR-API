@@ -1,5 +1,6 @@
 import { Decimal } from '@prisma/client/runtime/library';
-import { SizeInterface } from '../../interfaces';
+import { ProductRegisterDtoInterface, SizeInterface } from '../../interfaces';
+import { decryptData } from '../../../config';
 
 export class RegisterProductDto {
     private constructor(
@@ -16,6 +17,12 @@ export class RegisterProductDto {
     static create(object: {
         [key: string]: any;
     }): [string?, RegisterProductDto?] {
+        const { encryptedData } = object;
+        if (!encryptedData) return ['No se ha enviado la data'];
+        const decipher =
+            decryptData<ProductRegisterDtoInterface>(encryptedData);
+        let data: ProductRegisterDtoInterface;
+        data = decipher.data || ({} as ProductRegisterDtoInterface);
         const {
             Nombre,
             Foto,
@@ -23,10 +30,9 @@ export class RegisterProductDto {
             Precio,
             Categoria,
             Catalogo,
-            Cantidad,
             Tallas,
             Estilos,
-        } = object;
+        } = data;
 
         const telaAsNumber = Number(Tela);
         const precioAsNumber = Number(Precio);
@@ -51,7 +57,7 @@ export class RegisterProductDto {
                 Nombre,
                 Foto,
                 +Tela,
-                parseFloat(Precio),
+                +Precio,
                 +Categoria,
                 +Catalogo,
                 Tallas,

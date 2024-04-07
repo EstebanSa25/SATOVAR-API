@@ -7,3 +7,7 @@ export * from './estado.interface';
 export * from './size.interface';
 export * from './estado.interface';
 export * from './sales.interface';
+export * from './Auth.dtos.interface';
+export * from './buy.dto.interface';
+export * from './Product.dto.interface';
+export * from './Fabric.dto.interface';

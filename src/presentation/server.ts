@@ -27,7 +27,6 @@ export class Server {
         //* Middlewares
         this.app.use(express.json({ limit: '100000mb' })); // raw
         this.app.use(express.urlencoded({ extended: true, limit: '100mb' })); // x-www-form-urlencoded
-
         //* Public Folder
         this.app.use(express.static(this.publicPath));
 

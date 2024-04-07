@@ -44,7 +44,7 @@ export class ProductsController implements Repository {
 
     DeleteById = (req: Request, res: Response) => {
         const id = req.params.id;
-        const [error, deleteDTO] = DeleteProductDto.create(+id);
+        const [error, deleteDTO] = DeleteProductDto.create(id!);
         if (error) {
             return res.status(400).json({ error });
         }
@@ -58,7 +58,7 @@ export class ProductsController implements Repository {
         const { id } = req.params;
         const [error, updateDTO] = UpdateProductDto.create({
             ...req.body,
-            Id: +id,
+            IdEncrypted: id,
         });
         if (error) return res.status(400).json({ error });
         this.productsService

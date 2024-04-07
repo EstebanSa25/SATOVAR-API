@@ -1,4 +1,5 @@
-import { SizeInterface } from '../../interfaces';
+import { decryptData } from '../../../config';
+import { ProductUpdateDtoInterface, SizeInterface } from '../../interfaces';
 
 export class UpdateProductDto {
     private constructor(
@@ -16,8 +17,13 @@ export class UpdateProductDto {
     static create(object: {
         [key: string]: any;
     }): [string?, UpdateProductDto?] {
+        const { encryptedData, IdEncrypted } = object;
+        if (!encryptedData) return ['No se ha enviado la data'];
+        const decipher = decryptData<ProductUpdateDtoInterface>(encryptedData);
+        let data: ProductUpdateDtoInterface;
+        data = decipher.data || ({} as ProductUpdateDtoInterface);
+        const decipherId = decryptData<any>(IdEncrypted.replace(/-/g, '/'));
         const {
-            Id,
             Nombre,
             Foto,
             Tela,
@@ -27,7 +33,9 @@ export class UpdateProductDto {
             Tallas,
             Estilos,
             Estado,
-        } = object;
+        } = data;
+        if (decipherId.status === 'error') return ['El id es requerido'];
+        const { Id } = decipherId.data;
 
         if (!Id) return ['El id es requerido'];
         if (isNaN(Id)) return ['El id debe ser un numero'];
