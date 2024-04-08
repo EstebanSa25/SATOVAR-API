@@ -128,6 +128,7 @@ const InsertAdmin = async () => {
             CV_TELEFONO: '1234567890',
             CI_ID_ROL: Rol.Admin,
             CB_ESTADO: true,
+            CB_CAMBIO_CLAVE: false,
         },
     });
 };

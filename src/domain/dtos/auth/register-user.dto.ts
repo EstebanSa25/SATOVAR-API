@@ -43,7 +43,14 @@ export class RegisterUserDto {
         if (!Clave) return ['La clave es requerida'];
         if (Clave.toString().length < 9)
             return ['La clave debe tener al menos 9 digitos'];
-        if (!Clave.includes('$' || '#' || '@' || '!' || '%' || '&'))
+        if (
+            !Clave.includes('$') &&
+            !Clave.includes('#') &&
+            !Clave.includes('@') &&
+            !Clave.includes('!') &&
+            !Clave.includes('%') &&
+            !Clave.includes('&')
+        )
             return ['La clave debe tener al menos un caracter especial'];
         return [
             undefined,

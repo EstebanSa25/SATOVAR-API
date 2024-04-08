@@ -46,6 +46,10 @@ export class AuthRoutes {
             [AuthMiddleware.validateJWT],
             controller.UpdateStateUser
         );
+        router.post('/forgot-password', controller.ForgotPassword);
+        router.post('/reset-password/:token', controller.ResetPassword);
+        router.get('/state-password/:token', controller.FindPasswordState);
+
         //#endregion
         return router;
     }

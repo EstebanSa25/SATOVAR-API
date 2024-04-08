@@ -2,8 +2,10 @@ import { Request, Response } from 'express';
 import { Repository } from '../../../domain';
 import {
     DeleteUserDto,
+    ForgotPasswordDto,
     LoginUserDTO,
     RegisterUserDto,
+    ResetPasswordDto,
     UpdateUserDto,
 } from '../../../domain/dtos';
 import { AuthService } from '../../services/auth.service';
@@ -111,6 +113,32 @@ export class AuthController implements Repository {
         this.authService
             .UpdateStateUser(+Id, +idToken)
             .then((user) => res.json(user))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
+    };
+    ForgotPassword = (req: Request, res: Response) => {
+        const [error, forgotPasswordDTO] = ForgotPasswordDto.create(req.body);
+        if (error) return res.status(400).json({ error });
+        this.authService
+            .ForgotPassword(forgotPasswordDTO!)
+            .then((response) => res.json(response))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
+    };
+    ResetPassword = (req: Request, res: Response) => {
+        const { token } = req.params;
+        const [error, resetPasswordDTO] = ResetPasswordDto.create(req.body);
+        if (error) return res.status(400).json({ error });
+        this.authService
+            .ResetPassword(resetPasswordDTO!, token!)
+            .then((response) => res.json(response))
+            .catch((error) => this.customErrorImpl.handleError(error, res));
+    };
+    FindPasswordState = (req: Request, res: Response) => {
+        const { token } = req.params;
+        if (!token)
+            return res.status(400).json({ error: 'Token es requerido' });
+        this.authService
+            .FindStatePassword(token)
+            .then((response) => res.json(response))
             .catch((error) => this.customErrorImpl.handleError(error, res));
     };
 }

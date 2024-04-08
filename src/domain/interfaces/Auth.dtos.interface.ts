@@ -29,3 +29,9 @@ export interface UpdateUserDtoInterface {
 export interface IdInterface {
     id: string;
 }
+export interface ResetPasswordDtoInterface {
+    clave: string;
+}
+export interface ForgotPasswordDtoInterface {
+    correo: string;
+}

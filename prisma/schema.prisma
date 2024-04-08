@@ -175,6 +175,7 @@ model T_USUARIO {
   CV_TELEFONO        String               @unique(map: "UQ__T_USUARI__41BD9EBC8FD1CF62") @db.NVarChar(20)
   CV_CLAVE           String               @db.NVarChar(Max)
   CI_ID_ROL          Int
+  CB_CAMBIO_CLAVE    Boolean
   CB_ESTADO          Boolean
   T_COMPRA           T_COMPRA[]
   T_ROL              T_ROL                @relation(fields: [CI_ID_ROL], references: [CI_ID_ROL], onUpdate: NoAction, map: "FK_USUARIO_ROL")

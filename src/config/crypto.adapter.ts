@@ -23,3 +23,10 @@ export const decryptData = <T>(encryptedData: string): DecryptionResult<T> => {
         };
     }
 };
+
+export const EncryptData = (data: { [key: string]: any }): string => {
+    return CryptoJS.AES.encrypt(
+        JSON.stringify(data),
+        envs.SECRET_API_KEY
+    ).toString();
+};

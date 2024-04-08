@@ -11,4 +11,5 @@ export const envs = {
     SEND_EMAIL: get('SEND_EMAIL').required().asBool(),
     DATABASE_URL: get('DATABASE_URL').required().asUrlString(),
     SECRET_API_KEY: get('SECRET_API_KEY').required().asString(),
+    REACT_URL: get('REACT_URL').required().asUrlString(),
 };

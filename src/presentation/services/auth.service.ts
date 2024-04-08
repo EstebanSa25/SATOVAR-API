@@ -1,14 +1,20 @@
-import { JwtAdapter, bcryptAdapter, envs } from '../../config';
+import { EncryptData, JwtAdapter, bcryptAdapter, envs } from '../../config';
 import { prisma } from '../../data/prisma';
 import { CustomError, Rol } from '../../domain';
 import {
     DeleteUserDto,
+    ForgotPasswordDto,
     LoginUserDTO,
     RegisterUserDto,
     UpdateUserDto,
 } from '../../domain/dtos';
-import { EmailValidationSuccess, validateEmail } from '../../helpers';
+import {
+    EmailValidationSuccess,
+    ForgotPasswordEmail,
+    validateEmail,
+} from '../../helpers';
 import { EmailService } from './email.service';
+import { ResetPasswordDto } from '../../domain/dtos/auth/reset-password.dto';
 
 export class AuthService {
     constructor(private readonly emailService: EmailService) {}
@@ -113,6 +119,7 @@ export class AuthService {
                     CV_CLAVE: clave,
                     CI_ID_ROL: Rol.Cliente,
                     CB_ESTADO: false,
+                    CB_CAMBIO_CLAVE: false,
                 },
             });
             this.sendEmailValidationLink(registerUserDto.Correo);
@@ -172,6 +179,7 @@ export class AuthService {
                     CV_CLAVE: clave,
                     CI_ID_ROL: Rol.Admin,
                     CB_ESTADO: true,
+                    CB_CAMBIO_CLAVE: false,
                 },
             });
             const { CV_CLAVE, ...userWithoutCLAVE } = user;
@@ -227,6 +235,12 @@ export class AuthService {
         });
         if (!token) throw CustomError.internalServer('Error generando token');
         const { CV_CLAVE, ...userWithoutCLAVE } = user;
+        if (user.CB_CAMBIO_CLAVE === true) {
+            await prisma.t_USUARIO.update({
+                where: { CI_ID_USUARIO: user.CI_ID_USUARIO },
+                data: { CB_CAMBIO_CLAVE: false },
+            });
+        }
         return {
             user: userWithoutCLAVE,
             token,
@@ -303,13 +317,12 @@ export class AuthService {
                 where: { CV_CORREO: email },
                 data: { CB_ESTADO: true },
             });
+            return EmailValidationSuccess();
         } catch (error) {
             if (error instanceof CustomError) throw error;
             console.log(error);
             throw CustomError.internalServer('Error validating email');
         }
-
-        return EmailValidationSuccess();
     };
     async revalidateToken(id: number) {
         const token = await JwtAdapter.generateToken({ id });
@@ -330,6 +343,88 @@ export class AuthService {
             if (error instanceof CustomError) throw error;
             console.log(error);
             return error;
+        }
+    }
+    async ForgotPassword(dto: ForgotPasswordDto) {
+        try {
+            const User = await prisma.t_USUARIO.findUnique({
+                where: { CV_CORREO: dto.correo },
+                select: {
+                    CV_CORREO: true,
+                    CB_CAMBIO_CLAVE: true,
+                    CB_ESTADO: true,
+                },
+            });
+            if (!User) throw CustomError.notFound('Correo no encontrado');
+            if (User.CB_ESTADO === false)
+                throw CustomError.unauthorized('Debe validar su cuenta');
+            await prisma.t_USUARIO.update({
+                where: { CV_CORREO: dto.correo },
+                data: { CB_CAMBIO_CLAVE: true },
+            });
+            if (!User) throw CustomError.notFound('Correo no encontrado');
+            const token = await JwtAdapter.generateToken({ email: dto.correo });
+            if (!token) throw CustomError.internalServer('Error getting token');
+            const link = `${envs.REACT_URL}forgot/password/${token}`;
+            const html = ForgotPasswordEmail(link, dto.correo);
+            const options = {
+                to: dto.correo,
+                subject: 'Restablece tu contraseña',
+                htmlBody: html,
+            };
+            const isSent = await this.emailService.sendEmail(options);
+            if (!isSent)
+                throw CustomError.internalServer('Error sending email');
+            return true;
+        } catch (error) {
+            console.log(error);
+            if (error instanceof CustomError) throw error;
+        }
+    }
+    async ResetPassword(dto: ResetPasswordDto, token: string) {
+        try {
+            const payload = await JwtAdapter.validateToken(token);
+            if (!payload) throw CustomError.unauthorized('Token invalido');
+            const { email } = payload as { email: string };
+            if (!email)
+                throw CustomError.internalServer('Correo no encontrado');
+            const user = await prisma.t_USUARIO.findFirst({
+                where: { CV_CORREO: email },
+            });
+            if (!user) throw CustomError.notFound('Usuario no encontrado');
+            const clave = bcryptAdapter.hash(dto.clave);
+            if (user.CB_CAMBIO_CLAVE === true) {
+                await prisma.t_USUARIO.update({
+                    where: { CV_CORREO: email },
+                    data: { CV_CLAVE: clave },
+                });
+                await prisma.t_USUARIO.update({
+                    where: { CV_CORREO: email },
+                    data: { CB_CAMBIO_CLAVE: false },
+                });
+            } else {
+                throw CustomError.badRequest('No puedes cambiar la contraseña');
+            }
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            console.log(error);
+        }
+    }
+    async FindStatePassword(token: string) {
+        try {
+            const payload = await JwtAdapter.validateToken(token);
+            if (!payload) throw CustomError.unauthorized('Token invalido');
+            const { email } = payload as { email: string };
+            const user = await prisma.t_USUARIO.findUnique({
+                where: { CV_CORREO: email },
+                select: { CB_CAMBIO_CLAVE: true },
+            });
+            if (!user) throw CustomError.notFound('Usuario no encontrado');
+            const encripted = EncryptData({ estado: user.CB_CAMBIO_CLAVE });
+            return { encripted };
+        } catch (error) {
+            if (error instanceof CustomError) throw error;
+            console.log(error);
         }
     }
 }
