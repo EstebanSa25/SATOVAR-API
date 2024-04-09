@@ -28,7 +28,7 @@ export class UpdateMeasureSuitJacketDto {
             puno,
             detalles,
         } = object;
-        if (!id) return ['El id de la medida es requerida'];
+        if (!id) return ['El ID de la medida es requerida'];
         return [
             undefined,
             new UpdateMeasureSuitJacketDto(

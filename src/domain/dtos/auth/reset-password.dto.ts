@@ -12,7 +12,7 @@ export class ResetPasswordDto {
 
         if (!data) return ['La clave es requerida'];
         if (data.toString().length < 9)
-            return ['La clave debe tener al menos 9 digitos'];
+            return ['La clave debe tener al menos 9 dígitos'];
         if (
             !data.includes('$') &&
             !data.includes('#') &&
@@ -21,7 +21,7 @@ export class ResetPasswordDto {
             !data.includes('%') &&
             !data.includes('&')
         )
-            return ['La clave debe tener al menos un caracter especial'];
+            return ['La clave debe tener al menos un carácter especial'];
 
         return [undefined, new ResetPasswordDto(data)];
     }

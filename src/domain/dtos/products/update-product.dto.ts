@@ -38,7 +38,7 @@ export class UpdateProductDto {
         const { Id } = decipherId.data;
 
         if (!Id) return ['El id es requerido'];
-        if (isNaN(Id)) return ['El id debe ser un numero'];
+        if (isNaN(Id)) return ['El ID debe ser un número'];
 
         return [
             undefined,

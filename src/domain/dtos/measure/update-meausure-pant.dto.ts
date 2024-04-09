@@ -14,7 +14,7 @@ export class UpdateMeasurePantDto {
     }): [string?, UpdateMeasurePantDto?] {
         const { id, cintura, cadera, tiro, rodilla, ruedo, largo, detalles } =
             object;
-        if (!id) return ['El id del usuario es requerido'];
+        if (!id) return ['El ID del usuario es requerido'];
         return [
             undefined,
             new UpdateMeasurePantDto(

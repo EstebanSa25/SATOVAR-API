@@ -13,7 +13,7 @@ export class LoginUserDTO {
         let data: LoginUserDtoInterface;
         data = decipher.data || ({} as LoginUserDtoInterface);
         const { correo, clave } = data;
-        if (!correo) return ['El correo es requerido'];
+        if (!correo) return ['El correo electrónico es requerido'];
         if (!clave) return ['La clave es requerida'];
         return [undefined, new LoginUserDTO(correo, clave)];
     }

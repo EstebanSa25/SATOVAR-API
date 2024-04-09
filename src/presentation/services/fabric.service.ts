@@ -44,7 +44,7 @@ export class FabricService {
             return true;
         } catch (error) {
             console.log(error);
-            throw CustomError.internalServer('Error deleting Fabric');
+            throw CustomError.internalServer('Error al eliminar la tela');
         }
     }
 
@@ -57,7 +57,7 @@ export class FabricService {
             if (!user) throw CustomError.badRequest('Usuario no encontrado');
             if (user.CI_ID_ROL !== Rol.Admin)
                 throw CustomError.unauthorized(
-                    'No tienes permisos para realizar esta acciÃ³n'
+                    'No tienes permisos para realizar esta acción'
                 );
             const fabrics = await prisma.t_TELA.findMany();
             return fabrics;
@@ -72,11 +72,11 @@ export class FabricService {
             const fabric = await prisma.t_TELA.findUnique({
                 where: { CI_ID_TELA: id },
             });
-            if (!fabric) throw CustomError.notFound('fabric not found');
+            if (!fabric) throw CustomError.notFound('Tela no encontrada');
             return fabric;
         } catch (error) {
             console.log(error);
-            throw CustomError.internalServer('Error getting fabric');
+            throw CustomError.internalServer('Error al obtener la tela');
         }
     }
 
@@ -110,7 +110,7 @@ export class FabricService {
         });
         console.log(updateFabricDto.Estado);
         if (typeof Boolean(updateFabricDto.Estado) !== 'boolean')
-            throw CustomError.badRequest('Estado debe ser un booleano');
+            throw CustomError.badRequest('El estado debe ser un booleano');
         try {
             if (!fabric) throw CustomError.notFound('Fabric not found');
             const fabricUpdated = await prisma.t_TELA.update({

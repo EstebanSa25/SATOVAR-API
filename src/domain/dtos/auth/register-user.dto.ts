@@ -31,18 +31,18 @@ export class RegisterUserDto {
         if (!Nombre) return ['El nombre es requerido'];
         if (!Apellido1) return ['El primer apellido es requerido'];
         if (!Apellido2) return ['El segundo apellido es requerido'];
-        if (!Cedula) return ['La cedula es requerida'];
-        if (isNaN(+Cedula)) return ['La cedula debe ser un numero'];
+        if (!Cedula) return ['La cédula es requerida'];
+        if (isNaN(+Cedula)) return ['La cédula debe ser un número'];
         if (Cedula.toString().length < 9)
-            return ['La cedula debe tener al menos 9 digitos'];
+            return ['La cédula debe tener al menos 9 digitos'];
 
-        if (!Correo) return ['Correo electronico es requerido'];
-        if (!Direccion) return ['La direccion es requerida'];
-        if (!Telefono) return ['El numero de telefono es requerido'];
-        if (isNaN(+Telefono)) return ['El telefono ser un numero'];
+        if (!Correo) return ['Correo electrónico es requerido'];
+        if (!Direccion) return ['La dirección es requerida'];
+        if (!Telefono) return ['El número de teléfono es requerido'];
+        if (isNaN(+Telefono)) return ['El teléfono debe ser un número'];
         if (!Clave) return ['La clave es requerida'];
         if (Clave.toString().length < 9)
-            return ['La clave debe tener al menos 9 digitos'];
+            return ['La clave debe tener al menos 9 dígitos'];
         if (
             !Clave.includes('$') &&
             !Clave.includes('#') &&
@@ -51,7 +51,7 @@ export class RegisterUserDto {
             !Clave.includes('%') &&
             !Clave.includes('&')
         )
-            return ['La clave debe tener al menos un caracter especial'];
+            return ['La clave debe tener al menos un carácter especial'];
         return [
             undefined,
             new RegisterUserDto(

@@ -28,7 +28,7 @@ export class CategoryService implements Repository {
                 },
             });
             if (!categories)
-                throw CustomError.notFound('Categorias no encontradas');
+                throw CustomError.notFound('Categorías no encontradas');
             return { categories };
         } catch (error) {
             console.log(error);

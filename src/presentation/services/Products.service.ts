@@ -16,7 +16,7 @@ export class ProductsService {
             });
             if (existProduct)
                 throw CustomError.badRequest(
-                    'El producto ya existe, modifiquelo'
+                    'El producto ya existe, modifíquelo'
                 );
             const product = await prisma.t_PRODUCTO.create({
                 data: {
@@ -140,7 +140,7 @@ export class ProductsService {
         const Idproduct = await prisma.t_PRODUCTO.findUnique({
             where: { CI_ID_PRODUCTO: updateProductDto.Id },
         });
-        if (!Idproduct) throw CustomError.notFound('Product not found');
+        if (!Idproduct) throw CustomError.notFound('Producto no existe');
         try {
             const productUpdate = await prisma.t_PRODUCTO.update({
                 where: { CI_ID_PRODUCTO: updateProductDto.Id },
@@ -351,7 +351,7 @@ export class ProductsService {
         } catch (error) {
             if (error instanceof CustomError) throw error;
             console.log(error);
-            return CustomError.internalServer('Error getting products');
+            return CustomError.internalServer('Error obteniendo productos');
         }
     }
     async getAllProductsWithSize() {
@@ -366,7 +366,7 @@ export class ProductsService {
         } catch (error) {
             if (error instanceof CustomError) throw error;
             console.log(error);
-            return CustomError.internalServer('Error getting products');
+            return CustomError.internalServer('Error obteniendo productos');
         }
     }
 
@@ -375,12 +375,15 @@ export class ProductsService {
             const GetProduct = await prisma.t_PRODUCTO.findUnique({
                 where: { CI_ID_PRODUCTO: id },
             });
-            if (!GetProduct) throw CustomError.notFound('Product not found');
+            if (!GetProduct)
+                throw CustomError.notFound('El producto no existe');
             return { GetProduct };
         } catch (error) {
             if (error instanceof CustomError) throw error;
             console.log(error);
-            throw CustomError.internalServer('Error getting Product');
+            throw CustomError.internalServer(
+                'Error obteniendo producto por id'
+            );
         }
     }
 }

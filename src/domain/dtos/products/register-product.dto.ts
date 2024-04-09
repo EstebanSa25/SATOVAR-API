@@ -39,18 +39,20 @@ export class RegisterProductDto {
         const categoriaAsNumber = Number(Categoria);
         const catalogoAsNumber = Number(Catalogo);
 
-        if (!Nombre) return ['Nombre is required'];
-        if (!Foto) return ['Foto is required'];
-        if (!Tela) return ['Tela is required'];
-        if (isNaN(telaAsNumber)) return ['Tela debe ser un número'];
-        if (!Precio) return ['Precio is required'];
-        if (isNaN(precioAsNumber)) return ['Precio debe ser un número'];
-        if (!Categoria) return ['Categoria es requerido'];
-        if (isNaN(categoriaAsNumber)) return ['Tela debe ser un número'];
-        if (!Catalogo) return ['Catalogo es requerido'];
-        if (isNaN(catalogoAsNumber)) return ['Catalogo debe ser un número'];
-        if (!Tallas) return ['Tallas es requerido'];
-        if (!Estilos) return ['Estilos es requerido'];
+        if (!Nombre) return ['El nombre es requerido'];
+        if (!Foto) return ['La foto es requerida'];
+        if (!Tela) return ['La tela es requerida'];
+        if (isNaN(telaAsNumber)) return ['La tela debe ser un número'];
+        if (!Precio) return ['El precio es requerido'];
+        if (isNaN(precioAsNumber)) return ['El precio debe ser un número'];
+        if (!Categoria) return ['La categoría es requerida'];
+        if (isNaN(categoriaAsNumber))
+            return ['La categoría debe ser un número'];
+        if (!Catalogo) return ['El catálogo es requerido'];
+        if (isNaN(catalogoAsNumber)) return ['El catálogo debe ser un número'];
+        if (!Tallas) return ['Las tallas son requeridas'];
+        if (!Estilos) return ['Los estilos son requeridos'];
+
         return [
             undefined,
             new RegisterProductDto(

@@ -11,7 +11,7 @@ export class ForgotPasswordDto {
         if (!encryptedData) return ['No se ha enviado la data'];
         let data: string;
         data = decipher.data || ({} as string);
-        if (!data) return ['El correo es requerido'];
+        if (!data) return ['El correo electrónico es requerido'];
         data;
         return [undefined, new ForgotPasswordDto(data)];
     }

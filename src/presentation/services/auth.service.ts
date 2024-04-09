@@ -1,4 +1,4 @@
-import { EncryptData, JwtAdapter, bcryptAdapter, envs } from '../../config';
+import { JwtAdapter, bcryptAdapter, envs } from '../../config';
 import { prisma } from '../../data/prisma';
 import { CustomError, Rol } from '../../domain';
 import {
@@ -15,6 +15,7 @@ import {
 } from '../../helpers';
 import { EmailService } from './email.service';
 import { ResetPasswordDto } from '../../domain/dtos/auth/reset-password.dto';
+import { EncryptData } from '../../config/crypto.adapter';
 
 export class AuthService {
     constructor(private readonly emailService: EmailService) {}
@@ -25,7 +26,7 @@ export class AuthService {
                     OR: [{ CI_ID_USUARIO: id }, { CV_CEDULA: id.toString() }],
                 },
             });
-            if (!user) throw CustomError.notFound('User not found');
+            if (!user) throw CustomError.notFound('Usuario no encontrado');
             const user2 = await prisma.t_USUARIO.findUnique({
                 where: { CV_CEDULA: id.toString() },
             });
@@ -34,7 +35,7 @@ export class AuthService {
         } catch (error) {
             if (error instanceof CustomError) throw error;
             console.log(error);
-            throw CustomError.internalServer('Error getting user');
+            throw CustomError.internalServer('Error obteniendo usuario');
         }
     }
     async UpdateStateUser(id: number, tokenId: number) {
@@ -220,10 +221,12 @@ export class AuthService {
             where: { CV_CORREO: loginUserDTO.correo },
         });
         if (!user) throw CustomError.notFound('Verifique sus credenciales');
-        if (!user?.CB_ESTADO)
+        if (!user?.CB_ESTADO) {
+            // this.sendEmailValidationLink(loginUserDTO.correo);
             throw CustomError.unauthorized(
                 'Verifique su cuenta o contacte a un administrador'
             );
+        }
         const isMatch = bcryptAdapter.compare(
             loginUserDTO.clave,
             user.CV_CLAVE
@@ -241,9 +244,9 @@ export class AuthService {
                 data: { CB_CAMBIO_CLAVE: false },
             });
         }
+        const encryptData = EncryptData({ user: userWithoutCLAVE, token });
         return {
-            user: userWithoutCLAVE,
-            token,
+            encryptData,
         };
     }
     async updateUser(updateUserDto: UpdateUserDto, idToken: number) {

@@ -36,18 +36,18 @@ export class UpdateUserDto {
         if (!Id) return ['El id es requerido'];
         if (isNaN(Id)) return ['El id debe ser un numero'];
         if (Rol) {
-            if (isNaN(Rol)) return ['El rol debe ser un numero'];
+            if (isNaN(Rol)) return ['El rol debe ser un número'];
         }
-        if (Cedula) if (isNaN(+Cedula)) return ['La cedula debe ser un numero'];
+        if (Cedula) if (isNaN(+Cedula)) return ['La cédula debe ser un número'];
         if (Cedula)
             if (Cedula.toString().length < 9)
-                return ['La cedula debe tener al menos 9 digitos'];
+                return ['La cédula debe tener al menos 9 dígitos'];
         if (Telefono)
-            if (isNaN(+Telefono)) return ['El telefono ser un numero'];
+            if (isNaN(+Telefono)) return ['El teléfono debe ser un número'];
         if (Clave) if (!Clave) return ['La clave es requerida'];
         if (Clave)
             if (Clave.toString().length < 9)
-                return ['La clave debe tener al menos 9 digitos'];
+                return ['La clave debe tener al menos 9 dígitos'];
         if (Clave)
             if (
                 !Clave.includes('$') &&
@@ -57,7 +57,7 @@ export class UpdateUserDto {
                 !Clave.includes('%') &&
                 !Clave.includes('&')
             )
-                return ['La clave debe tener al menos un caracter especial'];
+                return ['La clave debe tener al menos un carácter especial'];
         return [
             undefined,
             new UpdateUserDto(

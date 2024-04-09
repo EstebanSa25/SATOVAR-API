@@ -32,7 +32,7 @@ export class RegisterMeasureSuitJacketDto {
             puno,
             detalles,
         } = object;
-        if (!id) return ['El id del usuario es requerido'];
+        if (!id) return ['El ID del usuario es requerido'];
         if (!pecho) return ['La medida del pecho es requerida'];
         if (!cintura) return ['La medida de la cintura es requerida'];
         if (!cadera) return ['La medida de la cadera es requerida'];

@@ -27,13 +27,13 @@ export class BuyProductsDTO {
             productos,
         } = data;
 
-        if (!subtotal) return ['subtotal es requerido'];
-        if (isNaN(subtotal)) return ['subtotal debe ser un número'];
-        if (!impuestos) return ['impuestos es requerido'];
-        if (isNaN(impuestos)) return ['impuestos debe ser un número'];
-        if (!total) return ['total es requerido'];
-        if (isNaN(total)) return ['total debe ser un número'];
-        if (!productos) return ['productos es requerido'];
+        if (!subtotal) return ['El subtotal es requerido'];
+        if (isNaN(subtotal)) return ['El subtotal debe ser un número'];
+        if (!impuestos) return ['Los impuestos son requeridos'];
+        if (isNaN(impuestos)) return ['Los impuestos deben ser un número'];
+        if (!total) return ['El total es requerido'];
+        if (isNaN(total)) return ['El total debe ser un número'];
+        if (!productos) return ['Los productos son requeridos'];
 
         return [
             undefined,

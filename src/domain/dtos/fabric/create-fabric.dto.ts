@@ -14,10 +14,10 @@ export class CreateFabricDTO {
         let data: RegisterFabricDtoInterface;
         data = decipher.data || ({} as RegisterFabricDtoInterface);
         const { Nombre, Foto, Precio } = data;
-        if (!Nombre) return ['Nombre es requerido'];
-        if (!Foto) return ['Foto es requerida'];
-        if (!Precio) return ['Precio es requerido'];
-        if (isNaN(Precio)) return ['Precio debe ser un número'];
+        if (!Nombre) return ['El nombre es requerido'];
+        if (!Foto) return ['La foto es requerida'];
+        if (!Precio) return ['El precio es requerido'];
+        if (isNaN(Precio)) return ['El precio debe ser un número'];
 
         return [undefined, new CreateFabricDTO(Nombre, Foto, +Precio)];
     }

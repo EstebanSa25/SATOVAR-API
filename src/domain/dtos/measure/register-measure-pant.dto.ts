@@ -14,7 +14,7 @@ export class RegisterMeasurePantDto {
     }): [string?, RegisterMeasurePantDto?] {
         const { id, cintura, cadera, tiro, rodilla, ruedo, largo, detalles } =
             object;
-        if (!id) return ['El id del usuario es requerido'];
+        if (!id) return ['El ID del usuario es requerido'];
         if (!cintura) return ['La medida de la cintura es requerida'];
         if (!cadera) return ['La medida de la cadera es requerida'];
         if (!tiro) return ['La medida del tiro es requerida'];

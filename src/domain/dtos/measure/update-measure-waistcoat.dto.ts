@@ -11,7 +11,7 @@ export class UpdateMeasureWaistcoatDto {
         [key: string]: any;
     }): [string?, UpdateMeasureWaistcoatDto?] {
         const { id, pecho, cintura, cadera, largoTotal, detalles } = object;
-        if (!id) return ['El id de la medida es requerido'];
+        if (!id) return ['El ID de la medida es requerido'];
 
         return [
             undefined,
