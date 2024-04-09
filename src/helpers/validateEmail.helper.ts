@@ -184,7 +184,7 @@ export const validateEmail = (link: string, email: string): string => {
   <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff;font-family:Helvetica, Arial, sans-serif;color:#445258;line-height: 22px;">
     <tbody><tr>
       <td style="text-align: center; display: block; padding: 0px 20px 20px 20px;">
-        <h1 style="color:#183643;text-align: center; font-size: 24px; letter-spacing: 1px; margin-bottom: 30px;">Activa tu cuenta de Satovar,${email}</h1>
+        <h1 style="color:#183643;text-align: center; font-size: 24px; letter-spacing: 1px; margin-bottom: 30px;">Active su cuenta de Satovar,${email}</h1>
       </td>
     </tr>
     <tr>
@@ -409,17 +409,17 @@ export const ForgotPasswordEmail = (link: string, email: string): string => {
   <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff;font-family:Helvetica, Arial, sans-serif;color:#445258;line-height: 22px;">
     <tbody><tr>
       <td style="text-align: center; display: block; padding: 0px 20px 20px 20px;">
-        <h1 style="color:#183643;text-align: center; font-size: 24px; letter-spacing: 1px; margin-bottom: 30px;">Instrucciones para restablecer la contraseña,${email}</h1>
+        <h1 style="color:#183643;text-align: center; font-size: 24px; letter-spacing: 1px; margin-bottom: 30px;">Instrucciones para restablecer su contraseña,${email}</h1>
       </td>
     </tr>
     <tr>
       <td style="padding: 0px 16.66% 40px 16.66%; text-align: center; display: block;">
-       <h2>Su contraseña de Satovar se puede restablecer haciendo clic en el botón a continuación. </h2>
+       <h2>Su contraseña de Satovar se puede restablecer haciendo click  en el botón a continuación. </h2>
       </td>
     </tr>
     <tr>
       <td style="text-align: center; font-family:Helvetica, Arial, sans-serif;">
-        <a href="${link}" title="Restablecer tu contraseña" style="background: #000000; border: solid 1px #000000; border-radius: 2px; padding: 3% 7%; color: #ffffff; font-weight: bold; font-size: 14px; letter-spacing: .25px; -webkit-font-smoothing: antialiased; text-transform: uppercase; text-decoration: none; line-height:18px; display: inline-block;" target="_blank">Restablecer tu contraseña</a>
+        <a href="${link}" title="Restablecer su contraseña" style="background: #000000; border: solid 1px #000000; border-radius: 2px; padding: 3% 7%; color: #ffffff; font-weight: bold; font-size: 14px; letter-spacing: .25px; -webkit-font-smoothing: antialiased; text-transform: uppercase; text-decoration: none; line-height:18px; display: inline-block;" target="_blank">Restablecer su contraseña</a>
       </td>
     </tr>
     <tr>

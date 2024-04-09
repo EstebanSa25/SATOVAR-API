@@ -372,7 +372,7 @@ export class AuthService {
             const html = ForgotPasswordEmail(link, dto.correo);
             const options = {
                 to: dto.correo,
-                subject: 'Restablece tu contraseña',
+                subject: 'Restablezca su contraseña',
                 htmlBody: html,
             };
             const isSent = await this.emailService.sendEmail(options);
