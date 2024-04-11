@@ -103,7 +103,7 @@ export class AuthService {
                 );
             if (exist.CV_TELEFONO === registerUserDto.Telefono)
                 throw CustomError.badRequest(
-                    'El numero de teléfono ya se encuentra registrado en el sistema'
+                    'El número de teléfono ya se encuentra registrado en el sistema'
                 );
         }
         const clave = bcryptAdapter.hash(registerUserDto.Clave);
@@ -163,7 +163,7 @@ export class AuthService {
                 );
             if (exist.CV_TELEFONO === registerUserDto.Telefono)
                 throw CustomError.badRequest(
-                    'El numero de teléfono ya se encuentra registrado en el sistema'
+                    'El número de teléfono ya se encuentra registrado en el sistema'
                 );
         }
         const clave = bcryptAdapter.hash(registerUserDto.Clave);
@@ -303,18 +303,18 @@ export class AuthService {
         const html = validateEmail(link, email);
         const options = {
             to: email,
-            subject: 'Validar tu cuenta',
+            subject: 'Validar su cuenta de Satovar',
             htmlBody: html,
         };
         const isSent = await this.emailService.sendEmail(options);
-        if (!isSent) throw CustomError.internalServer('Error sending email');
+        if (!isSent) throw CustomError.internalServer('Error enviando email');
         return true;
     };
     public validateEmail = async (token: string) => {
         const payload = await JwtAdapter.validateToken(token);
-        if (!payload) throw CustomError.unauthorized('Invalid token');
+        if (!payload) throw CustomError.unauthorized('Token invalido');
         const { email } = payload as { email: string };
-        if (!email) throw CustomError.internalServer('Email not in token');
+        if (!email) throw CustomError.internalServer('Correo no encontrado');
         try {
             await prisma.t_USUARIO.update({
                 where: { CV_CORREO: email },
@@ -324,7 +324,7 @@ export class AuthService {
         } catch (error) {
             if (error instanceof CustomError) throw error;
             console.log(error);
-            throw CustomError.internalServer('Error validating email');
+            throw CustomError.internalServer('Error validando correo');
         }
     };
     async revalidateToken(id: number) {
@@ -367,7 +367,8 @@ export class AuthService {
             });
             if (!User) throw CustomError.notFound('Correo no encontrado');
             const token = await JwtAdapter.generateToken({ email: dto.correo });
-            if (!token) throw CustomError.internalServer('Error getting token');
+            if (!token)
+                throw CustomError.internalServer('Error generando token');
             const link = `${envs.REACT_URL}forgot/password/${token}`;
             const html = ForgotPasswordEmail(link, dto.correo);
             const options = {
@@ -377,7 +378,7 @@ export class AuthService {
             };
             const isSent = await this.emailService.sendEmail(options);
             if (!isSent)
-                throw CustomError.internalServer('Error sending email');
+                throw CustomError.internalServer('Error enviando email');
             return true;
         } catch (error) {
             console.log(error);

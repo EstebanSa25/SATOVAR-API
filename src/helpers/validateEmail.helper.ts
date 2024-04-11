@@ -1,6 +1,6 @@
 export const validateEmail = (link: string, email: string): string => {
     return `<head>
-    <title>Activa tu cuenta</title>
+    <title>Activa su cuenta</title>
     <style type="text/css">
     /*Force Hotmail to display normal line spacing */
   body, table, td, p, a, li, blockquote{-webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;} /* Prevent WebKit and Windows mobile changing default text sizes */
@@ -225,7 +225,7 @@ export const validateEmail = (link: string, email: string): string => {
 
 export const ForgotPasswordEmail = (link: string, email: string): string => {
     return `<head>
-    <title>=Restablecer la contraseña</title>
+    <title>=Restablezca la contraseña</title>
     <style type="text/css">
     /*Force Hotmail to display normal line spacing */
   body, table, td, p, a, li, blockquote{-webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;} /* Prevent WebKit and Windows mobile changing default text sizes */
@@ -419,7 +419,7 @@ export const ForgotPasswordEmail = (link: string, email: string): string => {
     </tr>
     <tr>
       <td style="text-align: center; font-family:Helvetica, Arial, sans-serif;">
-        <a href="${link}" title="Restablecer su contraseña" style="background: #000000; border: solid 1px #000000; border-radius: 2px; padding: 3% 7%; color: #ffffff; font-weight: bold; font-size: 14px; letter-spacing: .25px; -webkit-font-smoothing: antialiased; text-transform: uppercase; text-decoration: none; line-height:18px; display: inline-block;" target="_blank">Restablecer su contraseña</a>
+        <a href="${link}" title="Restablecer su contraseña" style="background: #000000; border: solid 1px #000000; border-radius: 2px; padding: 3% 7%; color: #ffffff; font-weight: bold; font-size: 14px; letter-spacing: .25px; -webkit-font-smoothing: antialiased; text-transform: uppercase; text-decoration: none; line-height:18px; display: inline-block;" target="_blank">Restablecer contraseña</a>
       </td>
     </tr>
     <tr>
